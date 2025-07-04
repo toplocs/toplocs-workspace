@@ -19,7 +19,7 @@
 
 ### 🤖 Automation System
 - **[Automated Context Updates](./automation/automated-context-updates.md)** - GitHub Actions AI system
-- **[Workspace Automation](./automation/)** - Additional automation documentation
+- **[Workspace Automation](./automation/automated-context-updates.md)** - Additional automation documentation
 
 ## 🎯 Quick Navigation
 
@@ -34,8 +34,8 @@
 3. **[Debug Tools](./development/debug-guide.md)** - Troubleshooting guide
 
 ### Team Management?
-1. **[Workspace Overview](./workspace/)** - Team coordination tools
-2. **[Automation System](./automation/)** - AI-powered maintenance
+1. **[Workspace Overview](./workspace/toplocs-workspace-overview.md)** - Team coordination tools
+2. **[Automation System](./automation/automated-context-updates.md)** - AI-powered maintenance
 3. **[Repository Management](./project/ecosystem.md)** - Multi-repo coordination
 
 ## 🌟 Key Features

@@ -122,18 +122,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - Checkout code
+      - Checkout main repository
+      - Checkout tribelike repository (for docs)
       - Setup Node.js 20
-      - Install pnpm
+      - Install pnpm v8
+      - Cache pnpm store
       - Install dependencies
       - Build Docusaurus
-      - Upload artifact
+      - Upload pages artifact
 
   deploy:
     needs: build
+    environment: github-pages
     steps:
       - Deploy to GitHub Pages
 ```
+
+**Important Notes**:
+- The workflow checks out additional repositories (like `tribelike`) to access their documentation
+- Uses pnpm with caching for faster builds
+- Configured with `onBrokenLinks: 'warn'` to handle cross-repository links
+- Automatically deploys on push to main branch
 
 ### Manual Deployment
 ```bash
@@ -175,6 +184,7 @@ GIT_USER=<Your GitHub username> pnpm deploy
 ### "The docs folder does not exist"
 - Ensure all source repositories are cloned at the same level as the docusaurus folder
 - Check that the paths in `docusaurus.config.ts` match your local structure
+- For CI/CD: Make sure the GitHub Actions workflow includes checkout steps for all referenced repositories
 
 ### Build Failures
 - Run `pnpm install` to ensure all dependencies are installed
@@ -185,6 +195,11 @@ GIT_USER=<Your GitHub username> pnpm deploy
 - Check GitHub Actions tab for build status
 - Ensure GitHub Pages is configured to use "GitHub Actions" as source
 - Verify the `baseUrl` in config matches your GitHub Pages URL
+
+### Broken Links in CI/CD
+- The build uses `onBrokenLinks: 'warn'` to handle cross-repository links
+- Links to parent directories (like `../../CLAUDE.md`) work locally but may warn in CI
+- Links between documentation sources are resolved at build time
 
 ## 📄 License
 
