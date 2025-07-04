@@ -1,0 +1,31 @@
+name: Notify Workspace on Changes
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    types: [closed]
+    branches: [main, master]
+
+jobs:
+  notify-workspace:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Notify toplocs-workspace
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        token: ${{ secrets.WORKSPACE_DISPATCH_TOKEN }}
+        repository: toplocs/toplocs-workspace
+        event-type: repository-updated
+        client-payload: |
+          {
+            "repository": "${{ github.repository }}",
+            "ref": "${{ github.ref }}",
+            "sha": "${{ github.sha }}",
+            "event_type": "${{ github.event_name }}",
+            "timestamp": "${{ github.event.head_commit.timestamp || github.event.pull_request.merged_at }}",
+            "pusher": "${{ github.event.pusher.name || github.event.pull_request.user.login }}",
+            "commit_message": "${{ github.event.head_commit.message || github.event.pull_request.title }}"
+          }

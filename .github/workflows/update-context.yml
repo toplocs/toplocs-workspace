@@ -1,0 +1,165 @@
+name: Update AI Context and Documentation
+
+on:
+  # Triggered by repository dispatch from main repositories
+  repository_dispatch:
+    types: [repository-updated]
+  
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: 'Repository that was updated'
+        required: false
+        default: 'manual-trigger'
+      
+  # Periodic validation every 6 hours
+  schedule:
+    - cron: '0 */6 * * *'
+
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  update-context:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      
+    steps:
+    - name: Checkout workspace repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install Claude Code CLI
+      run: |
+        npm install -g @anthropics/claude-code-cli
+        
+    - name: Clone all TopLocs repositories
+      run: |
+        # Create temporary directory for repositories
+        mkdir -p repos
+        cd repos
+        
+        # Clone all main repositories
+        git clone https://github.com/toplocs/tribelike.git
+        git clone https://github.com/toplocs/locations.git
+        git clone https://github.com/toplocs/event-plugin.git
+        git clone https://github.com/toplocs/wiki-plugin.git
+        git clone https://github.com/toplocs/location-plugin.git
+        git clone https://github.com/toplocs/link-plugin.git
+        git clone https://github.com/toplocs/demo-plugin.git
+        git clone https://github.com/toplocs/gun-sign.git
+        git clone https://github.com/toplocs/gun-playground.git
+        git clone https://github.com/toplocs/decentral-auth.git
+        git clone https://github.com/toplocs/project-playground.git
+        git clone https://github.com/toplocs/tribelike.wiki.git
+
+    - name: Set up Claude Code context
+      run: |
+        # Copy current CLAUDE.md as reference
+        cp CLAUDE.md CLAUDE.md.backup
+        
+    - name: Update documentation with Claude
+      run: |
+        # Create a comprehensive update prompt
+        cat > update_prompt.txt << 'EOF'
+        I need you to update the TopLocs workspace documentation based on the current state of all repositories. Please:
+
+        1. Read all README.md files from the repos/ directory to understand current project status
+        2. Read current CLAUDE.md and docs/ files in the workspace
+        3. Update CLAUDE.md with any new information, repositories, or changes
+        4. Update docs/getting-started.md if there are new setup requirements
+        5. Check if any new repositories exist that should be documented
+        6. Ensure all repository lists are current and accurate
+        7. Update any outdated information about architecture or development patterns
+
+        Key areas to check:
+        - Repository list completeness and accuracy
+        - Development command changes (package.json scripts)
+        - New features or architectural changes
+        - Plugin system updates
+        - Mobile app changes
+        - Documentation link validity
+
+        Make sure the AI context remains comprehensive and helpful for new developers.
+
+        Changed repository: ${{ github.event.client_payload.repository || inputs.repository || 'periodic-update' }}
+        EOF
+
+        # Run Claude to update documentation
+        claude --non-interactive < update_prompt.txt
+
+    - name: Check for changes
+      id: check-changes
+      run: |
+        git add .
+        if git diff --staged --quiet; then
+          echo "changes=false" >> $GITHUB_OUTPUT
+          echo "No changes detected"
+        else
+          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "Changes detected"
+        fi
+
+    - name: Create Pull Request
+      if: steps.check-changes.outputs.changes == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: |
+          🤖 Auto-update AI context and documentation
+          
+          Updated based on changes in: ${{ github.event.client_payload.repository || inputs.repository || 'periodic-update' }}
+          
+          - Synchronized repository information
+          - Updated development context
+          - Refreshed documentation links
+          
+          🤖 Generated with Claude AI automation
+        title: '🤖 Auto-update workspace context'
+        body: |
+          ## AI-Generated Documentation Update
+          
+          This PR was automatically generated to keep the workspace context current with changes in the TopLocs ecosystem.
+          
+          ### Trigger
+          - **Repository**: ${{ github.event.client_payload.repository || inputs.repository || 'periodic-update' }}
+          - **Event**: ${{ github.event_name }}
+          - **Timestamp**: ${{ github.event.head_commit.timestamp }}
+          
+          ### Changes
+          Claude AI has reviewed all repository states and updated:
+          - AI development context (CLAUDE.md)
+          - Getting started documentation
+          - Repository lists and relationships
+          - Development commands and workflows
+          
+          ### Review Checklist
+          - [ ] AI context accuracy
+          - [ ] Repository list completeness
+          - [ ] Development command validity
+          - [ ] Documentation link functionality
+          
+          **Note**: This is an automated update. Please review changes before merging.
+        branch: auto-update-context
+        delete-branch: true
+
+    - name: Clean up
+      run: |
+        rm -rf repos/
+        rm -f update_prompt.txt CLAUDE.md.backup
+
+    - name: Notification
+      if: steps.check-changes.outputs.changes == 'true'
+      run: |
+        echo "Created PR for workspace context updates"
+        echo "Trigger: ${{ github.event.client_payload.repository || inputs.repository || 'periodic-update' }}"
