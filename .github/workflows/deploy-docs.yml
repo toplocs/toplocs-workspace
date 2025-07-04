@@ -26,6 +26,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         
+      - name: Checkout tribelike repository
+        uses: actions/checkout@v4
+        with:
+          repository: toplocs/tribelike
+          path: tribelike
+        
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
