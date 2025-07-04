@@ -1,8 +1,9 @@
 # TopLocs Workspace
 
-**AI-driven ecosystem setup for the TopLocs decentralized P2P community platform**
+**Ecosystem setup for the TopLocs decentralized P2P community platform**
 
 This repository orchestrates the entire TopLocs development environment through AI automation.
+
 
 ## 🚀 New Developer? AI Setup in 30 Seconds!
 

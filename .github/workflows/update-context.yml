@@ -49,7 +49,7 @@ jobs:
         mkdir -p repos
         cd repos
         
-        # Clone all main repositories
+        # Clone all main repositories (excluding playground repos)
         git clone https://github.com/toplocs/tribelike.git
         git clone https://github.com/toplocs/locations.git
         git clone https://github.com/toplocs/event-plugin.git
@@ -64,49 +64,6 @@ jobs:
         # Copy current CLAUDE.md as reference
         cp CLAUDE.md CLAUDE.md.backup
         
-    - name: Sync documentation from repositories
-      run: |
-        echo "📚 Synchronizing documentation from all repositories..."
-        
-        # Sync project documentation from tribelike
-        if [ -d "repos/tribelike/docs" ]; then
-          echo "Syncing tribelike documentation..."
-          cp repos/tribelike/docs/architecture.md docs/project/ 2>/dev/null || true
-          cp repos/tribelike/docs/ecosystem.md docs/project/ 2>/dev/null || true
-          cp repos/tribelike/docs/plugin-development.md docs/development/ 2>/dev/null || true
-          cp repos/tribelike/docs/debug-guide.md docs/development/ 2>/dev/null || true
-          cp repos/tribelike/docs/debug-tools.md docs/development/ 2>/dev/null || true
-        fi
-        
-        # Sync plugin documentation
-        for plugin_dir in repos/*-plugin/; do
-          if [ -d "$plugin_dir" ]; then
-            plugin_name=$(basename "$plugin_dir")
-            echo "Checking documentation for $plugin_name..."
-            
-            # Copy plugin-specific docs if they exist
-            if [ -f "$plugin_dir/docs/README.md" ]; then
-              mkdir -p "docs/plugins/$plugin_name"
-              cp "$plugin_dir/docs/"* "docs/plugins/$plugin_name/" 2>/dev/null || true
-            fi
-            
-            # Update plugin README references
-            if [ -f "$plugin_dir/README.md" ]; then
-              # Extract key information for central docs
-              echo "- Updated $plugin_name documentation" >> docs_sync.log
-            fi
-          fi
-        done
-        
-        # Sync mobile app documentation
-        if [ -d "repos/locations/docs" ]; then
-          echo "Syncing mobile app documentation..."
-          mkdir -p docs/mobile
-          cp repos/locations/docs/* docs/mobile/ 2>/dev/null || true
-        fi
-        
-        echo "✅ Documentation sync complete"
-
     - name: Update documentation with Claude
       run: |
         # Create a comprehensive update prompt
@@ -129,10 +86,11 @@ jobs:
         - Plugin system updates
         - Mobile app changes
         - Documentation link validity
-        - Centralized docs structure in docs/ folder
+        - Workspace documentation structure and navigation
 
         Make sure the AI context remains comprehensive and helpful for new developers.
-        The workspace now has centralized documentation in docs/ with organized subdirectories.
+        The workspace is the SINGLE SOURCE OF TRUTH for all general TopLocs documentation.
+        Individual repositories may have their own specific docs, but general docs live in the workspace only.
 
         Changed repository: ${{ github.event.client_payload.repository || inputs.repository || 'periodic-update' }}
         EOF

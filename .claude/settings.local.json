@@ -18,7 +18,8 @@
       "Bash(gh repo create:*)",
       "Bash(cp:*)",
       "mcp__github__search_repositories",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(diff:*)"
     ],
     "deny": []
   }

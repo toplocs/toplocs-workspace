@@ -96,9 +96,9 @@ The `docusaurus/` folder contains our unified documentation site that aggregates
 - **Project coordination**: Roadmap and team coordination
 
 ### Repository-Specific Documentation
-- **tribelike/docs/**: Comprehensive development guides
-- **Individual READMEs**: Repository-specific context
-- **Plugin docs**: Plugin development and usage
+- **Individual READMEs**: Repository-specific context and setup
+- **Repository CLAUDE.md files**: Repository-specific AI context
+- **Implementation guides**: Repository-specific technical details
 
 ## 🎯 Development Scenarios
 
@@ -106,9 +106,12 @@ The `docusaurus/` folder contains our unified documentation site that aggregates
 ```bash
 # Claude reads workspace context, then focuses on tribelike/
 cd tribelike
-# Comprehensive development context in tribelike/CLAUDE.md
 pnpm dev
 ```
+
+**📖 Tribelike-Specific Resources:**
+- **[Tribelike Development Guide](./tribelike/docs/DEVELOPMENT.md)** - Technical details, data architecture, Gun.js patterns, and development workflows
+- **[Tribelike README](./tribelike/README.md)** - Repository overview and quick setup
 
 ### Scenario 2: Plugin Development
 ```bash
