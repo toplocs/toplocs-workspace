@@ -13,6 +13,7 @@ wiki-plugin/
 location-plugin/
 link-plugin/
 demo-plugin/
+chat-plugin/
 
 # Proof of Concept Repositories
 gun-sign/
