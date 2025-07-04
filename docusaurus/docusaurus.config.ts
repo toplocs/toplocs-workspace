@@ -46,7 +46,7 @@ const config: Config = {
           routeBasePath: 'docs',
           sidebarPath: './sidebars.ts',
           editUrl:
-            'https://github.com/toplocs/toplocs-workspace/tree/main/docs/',
+            'https://github.com/toplocs/toplocs-workspace/blob/main/docs/',
         },
         blog: false,
         theme: {
