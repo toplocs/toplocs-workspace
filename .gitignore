@@ -1,0 +1,55 @@
+# TopLocs Workspace .gitignore
+# This workspace manages multiple repositories - exclude them from version control
+
+# Core Platform
+tribelike/
+
+# Mobile App
+locations/
+
+# Plugin Repositories
+event-plugin/
+wiki-plugin/
+location-plugin/
+link-plugin/
+demo-plugin/
+
+# Proof of Concept Repositories
+gun-sign/
+gun-playground/
+decentral-auth/
+project-playground/
+
+# Documentation
+tribelike.wiki/
+
+# Separate git repositories (funding, grants, etc.)
+Funding/
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Node.js (if any workspace-level tools are added)
+node_modules/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
