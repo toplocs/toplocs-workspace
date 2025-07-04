@@ -46,7 +46,7 @@ const config: Config = {
           routeBasePath: 'docs',
           sidebarPath: './sidebars.ts',
           editUrl:
-            'https://github.com/toplocs/toplocs-workspace/tree/main/',
+            'https://github.com/toplocs/toplocs-workspace/tree/main/docs/',
         },
         blog: false,
         theme: {
@@ -64,7 +64,7 @@ const config: Config = {
         path: '../tribelike/docs',
         routeBasePath: 'tribelike',
         sidebarPath: './sidebars.ts',
-        editUrl: 'https://github.com/toplocs/tribelike/tree/main/',
+        editUrl: 'https://github.com/toplocs/tribelike/tree/main/docs/',
       },
     ],
   ],
