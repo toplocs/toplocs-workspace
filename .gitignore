@@ -23,6 +23,10 @@ project-playground/
 # Documentation
 tribelike.wiki/
 
+# Docusaurus build output
+docusaurus/.docusaurus/
+docusaurus/build/
+
 # Separate git repositories (funding, grants, etc.)
 Funding/
 

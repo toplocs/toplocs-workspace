@@ -26,6 +26,7 @@ toplocs-workspace/ (this repository)
 ├── README.md           # Quick start guide  
 ├── CLAUDE.md          # Comprehensive AI context
 ├── docs/              # Setup guides & documentation
+├── docusaurus/        # 📚 Documentation site (Docusaurus)
 ├── Funding/           # Project funding & grants
 └── .gitignore         # Excludes auto-cloned repos
 
@@ -36,6 +37,18 @@ Auto-cloned repositories (after AI setup):
 ├── gun-*/             # Gun.js PoCs
 └── [others]           # Development tools & docs
 ```
+
+## 📚 Documentation Hub
+
+**Live Documentation**: https://toplocs.github.io/toplocs-workspace/
+
+The `docusaurus/` folder contains our centralized documentation site that aggregates docs from all TopLocs repositories. 
+
+- **Local Development**: `cd docusaurus && pnpm start`
+- **Auto-deploys**: Via GitHub Actions on push to main
+- **Multi-source**: Pulls docs from workspace, tribelike, and plugins
+
+[Learn more about the documentation system →](./docusaurus/README.md)
 
 ## 🎯 Why AI-Driven Setup?
 

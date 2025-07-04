@@ -28,6 +28,7 @@ toplocs/ (this workspace repository)
 ├── README.md            # Getting started guide
 ├── CLAUDE.md           # AI context (this file)
 ├── docs/               # Ecosystem documentation
+├── docusaurus/         # 📚 Centralized documentation site
 ├── Funding/            # Grant applications & project info
 │
 # Auto-cloned repositories (in .gitignore):
@@ -83,6 +84,17 @@ TopLocs is a **decentralized P2P community platform** built on Gun.js:
 - **🛠️ Tools**: demo-plugin (development framework)
 
 ## 📚 Documentation Strategy
+
+### Centralized Documentation Hub
+**🌐 Live Site**: https://toplocs.github.io/toplocs-workspace/
+
+The `docusaurus/` folder contains our unified documentation site that aggregates all TopLocs documentation:
+- **Multi-source**: Pulls docs from workspace, tribelike, and plugin repositories
+- **Searchable**: Full-text search across all documentation
+- **Auto-deployed**: GitHub Actions deploys on every push to main
+- **Local development**: `cd docusaurus && pnpm start`
+
+[Learn more about the documentation system →](./docusaurus/README.md)
 
 ### Workspace-Level Documentation (This Repository)
 - **Setup automation**: AI-driven ecosystem setup
