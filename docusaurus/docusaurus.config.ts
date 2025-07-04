@@ -67,7 +67,7 @@ const config: Config = {
         editUrl: ({ docPath }) => {
           // Remove the 'tribelike/' prefix that gets added
           const cleanPath = docPath.replace(/^tribelike\//, '');
-          return `https://github.com/toplocs/tribelike/blob/main/${cleanPath}`;
+          return `https://github.com/toplocs/tribelike/blob/main/docs/${cleanPath}`;
         },
       },
     ],
