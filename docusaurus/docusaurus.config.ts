@@ -64,7 +64,19 @@ const config: Config = {
         path: '../tribelike/docs',
         routeBasePath: 'tribelike',
         sidebarPath: './sidebars.ts',
-        editUrl: 'https://github.com/toplocs/tribelike/blob/main/docs/',
+        editUrl: ({ docPath }) => {
+          // Debug output to understand what Docusaurus provides
+          console.log('[DEBUG] Tribelike editUrl - docPath:', docPath);
+          
+          // Try to fix the path
+          if (docPath.startsWith('docs/')) {
+            // Already has docs/ prefix
+            return `https://github.com/toplocs/tribelike/blob/main/${docPath}`;
+          } else {
+            // Need to add docs/ prefix
+            return `https://github.com/toplocs/tribelike/blob/main/docs/${docPath}`;
+          }
+        },
       },
     ],
   ],
