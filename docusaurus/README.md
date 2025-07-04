@@ -201,6 +201,18 @@ GIT_USER=<Your GitHub username> pnpm deploy
 - Links to parent directories (like `../../CLAUDE.md`) work locally but may warn in CI
 - Links between documentation sources are resolved at build time
 
+### Edit URL Configuration
+- For multi-instance docs, Docusaurus passes only the relative path from the configured `path`
+- Example: For `path: '../tribelike/docs'`, a file at `../tribelike/docs/ecosystem.md` is passed as `ecosystem.md`
+- The `editUrl` function receives this relative path and must construct the full GitHub URL
+- Current configuration:
+  ```typescript
+  editUrl: ({ docPath }) => {
+    // docPath is relative to the instance's path (e.g., "ecosystem.md")
+    return `https://github.com/toplocs/tribelike/blob/main/docs/${docPath}`;
+  }
+  ```
+
 ## 📄 License
 
 MIT License - Part of the TopLocs ecosystem
