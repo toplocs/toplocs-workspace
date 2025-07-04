@@ -16,7 +16,8 @@
       "Bash(git push:*)",
       "Bash(git init:*)",
       "Bash(gh repo create:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "mcp__github__search_repositories"
     ],
     "deny": []
   }
