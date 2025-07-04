@@ -64,7 +64,7 @@ const config: Config = {
         path: '../tribelike/docs',
         routeBasePath: 'tribelike',
         sidebarPath: './sidebars.ts',
-        editUrl: 'https://github.com/toplocs/tribelike/tree/main/docs/',
+        editUrl: 'https://github.com/toplocs/tribelike/tree/main/',
       },
     ],
   ],
