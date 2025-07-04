@@ -129,12 +129,28 @@ jobs:
           "toplocs-workspace"
         )
         
-        # Find undocumented repositories
+        # Playground repositories to ignore
+        playground_repos=(
+          "gun-sign"
+          "gun-playground"
+          "decentral-auth"
+          "project-playground"
+        )
+        
+        # Find undocumented repositories (excluding playground repos)
         new_repos=()
         while IFS= read -r repo; do
-          if [[ ! " ${documented_repos[*]} " =~ " $repo " ]]; then
-            new_repos+=("$repo")
+          # Skip if repo is in documented list
+          if [[ " ${documented_repos[*]} " =~ " $repo " ]]; then
+            continue
           fi
+          
+          # Skip if repo is a playground repo
+          if [[ " ${playground_repos[*]} " =~ " $repo " ]]; then
+            continue
+          fi
+          
+          new_repos+=("$repo")
         done <<< "$all_repos"
         
         if [ ${#new_repos[@]} -gt 0 ]; then
