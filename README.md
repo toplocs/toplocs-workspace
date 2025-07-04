@@ -27,7 +27,6 @@ toplocs-workspace/ (this repository)
 ├── CLAUDE.md          # Comprehensive AI context
 ├── docs/              # Setup guides & documentation
 ├── docusaurus/        # 📚 Documentation site (Docusaurus)
-├── Funding/           # Project funding & grants
 └── .gitignore         # Excludes auto-cloned repos
 
 Auto-cloned repositories (after AI setup):

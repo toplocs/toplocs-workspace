@@ -25,8 +25,7 @@ When you run the setup prompt, AI systematically reads:
 toplocs-workspace/
 ├── CLAUDE.md              # Ecosystem overview and AI capabilities
 ├── docs/getting-started.md # Setup instructions and workflows
-├── README.md              # Quick start and repository information
-└── Funding/               # Project context and objectives
+└── README.md              # Quick start and repository information
 ```
 
 ### 2. Repository Discovery Phase

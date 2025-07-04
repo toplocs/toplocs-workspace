@@ -29,7 +29,6 @@ toplocs/ (this workspace repository)
 ├── CLAUDE.md           # AI context (this file)
 ├── docs/               # Ecosystem documentation
 ├── docusaurus/         # 📚 Centralized documentation site
-├── Funding/            # Grant applications & project info
 │
 # Auto-cloned repositories (in .gitignore):
 ├── tribelike/          # ⭐ Core P2P platform
@@ -94,7 +93,7 @@ The `docusaurus/` folder contains our unified documentation site that aggregates
 ### Workspace-Level Documentation (This Repository)
 - **Setup automation**: AI-driven ecosystem setup
 - **Architecture overview**: High-level ecosystem understanding
-- **Project management**: Funding, roadmap, coordination
+- **Project coordination**: Roadmap and team coordination
 
 ### Repository-Specific Documentation
 - **tribelike/docs/**: Comprehensive development guides
