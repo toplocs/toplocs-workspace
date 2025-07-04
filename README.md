@@ -17,7 +17,7 @@ Then use this prompt:
 I just cloned the toplocs-workspace repository. Please help me set up the complete TopLocs ecosystem by reading the documentation, cloning all repositories, and setting up the development environment. I want to work on: [your goals]
 ```
 
-👉 **[Complete Getting Started Guide](./docs/getting-started.md)**
+👉 **[Complete Getting Started Guide](./docs/workspace/getting-started.md)**
 
 ## 📁 What This Workspace Provides
 
@@ -79,17 +79,20 @@ TopLocs is a **decentralized P2P community platform** built on Gun.js:
 - Update AI context as ecosystem evolves
 - Maintain getting-started guides
 
-## 📚 Documentation Strategy
+## 📚 Centralized Documentation Hub
 
-### Workspace-Level (This Repository)
-- **[Getting Started](./docs/getting-started.md)** - AI-driven setup guide
-- **[CLAUDE.md](./CLAUDE.md)** - Comprehensive AI development context
-- **Funding/** - Project funding and grant information
+### Workspace Documentation (This Repository)
+- **[📋 Documentation Hub](./docs/README.md)** - Complete navigation and overview
+- **[🚀 Getting Started](./docs/workspace/getting-started.md)** - AI-driven setup guide
+- **[🤖 AI Context](./CLAUDE.md)** - Comprehensive development context
+- **[🔧 Workspace Overview](./docs/workspace/toplocs-workspace-overview.md)** - System documentation
 
-### Repository-Specific (After AI Setup)
-- **tribelike/docs/** - Detailed development guides
-- **Individual READMEs** - Repository-specific information
-- **Plugin docs** - Plugin development and usage guides
+### Project Documentation (Centralized)
+- **[🏗️ Architecture](./docs/project/architecture.md)** - P2P platform technical details
+- **[🌐 Ecosystem](./docs/project/ecosystem.md)** - Repository relationships
+- **[🔌 Plugin Development](./docs/development/plugin-development.md)** - Create and maintain plugins
+- **[🐛 Debug Guide](./docs/development/debug-guide.md)** - Troubleshooting and tools
+- **[🤖 Automation](./docs/automation/)** - AI-powered maintenance system
 
 ## 🚀 Next Steps
 
