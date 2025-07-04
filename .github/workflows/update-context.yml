@@ -57,10 +57,6 @@ jobs:
         git clone https://github.com/toplocs/location-plugin.git
         git clone https://github.com/toplocs/link-plugin.git
         git clone https://github.com/toplocs/demo-plugin.git
-        git clone https://github.com/toplocs/gun-sign.git
-        git clone https://github.com/toplocs/gun-playground.git
-        git clone https://github.com/toplocs/decentral-auth.git
-        git clone https://github.com/toplocs/project-playground.git
         git clone https://github.com/toplocs/tribelike.wiki.git
 
     - name: Set up Claude Code context

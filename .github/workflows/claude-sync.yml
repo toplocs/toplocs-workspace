@@ -66,10 +66,6 @@ jobs:
         update_repo "https://github.com/toplocs/location-plugin.git"
         update_repo "https://github.com/toplocs/link-plugin.git"
         update_repo "https://github.com/toplocs/demo-plugin.git"
-        update_repo "https://github.com/toplocs/gun-sign.git"
-        update_repo "https://github.com/toplocs/gun-playground.git"
-        update_repo "https://github.com/toplocs/decentral-auth.git"
-        update_repo "https://github.com/toplocs/project-playground.git"
         update_repo "https://github.com/toplocs/tribelike.wiki.git"
 
     - name: Analyze repository changes

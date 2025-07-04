@@ -49,10 +49,6 @@ jobs:
           "toplocs/location-plugin"
           "toplocs/link-plugin"
           "toplocs/demo-plugin"
-          "toplocs/gun-sign"
-          "toplocs/gun-playground"
-          "toplocs/decentral-auth"
-          "toplocs/project-playground"
           "toplocs/tribelike.wiki"
         )
         
@@ -129,10 +125,6 @@ jobs:
           "location-plugin"
           "link-plugin"
           "demo-plugin"
-          "gun-sign"
-          "gun-playground"
-          "decentral-auth"
-          "project-playground"
           "tribelike.wiki"
           "toplocs-workspace"
         )

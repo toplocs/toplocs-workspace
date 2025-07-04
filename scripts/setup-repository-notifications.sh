@@ -25,10 +25,6 @@ REPOSITORIES=(
     "toplocs/location-plugin"
     "toplocs/link-plugin"
     "toplocs/demo-plugin"
-    "toplocs/gun-sign"
-    "toplocs/gun-playground"
-    "toplocs/decentral-auth"
-    "toplocs/project-playground"
     "toplocs/tribelike.wiki"
 )
 

@@ -21,11 +21,6 @@ toplocs/ (workspace managed by toplocs-workspace repository)
 │   ├── wiki-plugin/         # Plugin: Knowledge sharing & documentation
 │   ├── location-plugin/     # Plugin: Location management & mapping
 │   └── link-plugin/         # Plugin: Link sharing & bookmarking
-├── 🔬 Proof of Concepts & Technology Tests
-│   ├── gun-sign/            # PoC: Gun.js server with custom storage
-│   ├── gun-playground/      # PoC: Gun.js development environment
-│   ├── decentral-auth/      # PoC: WebAuthn + Gun.js authentication
-│   └── project-playground/  # PoC: Architecture testing & patterns
 └── 🛠️  Development Tools
     └── demo-plugin/         # Plugin development framework
 ```
@@ -65,13 +60,6 @@ All repositories ending in `-plugin` are plugins for the platform:
 - **location-plugin** - Location management and mapping
 - **link-plugin** - Link sharing and bookmarking
 
-### 🔬 Proof of Concept Repositories
-These repositories contain technology tests and experimental implementations:
-
-- **gun-sign** - Gun.js server with custom storage implementation
-- **gun-playground** - Development environment for testing Gun.js features
-- **decentral-auth** - WebAuthn + Gun.js authentication system
-- **project-playground** - Architecture patterns and service abstractions
 
 ### 🛠️ Development Tools
 - **demo-plugin** - Template and framework for plugin development
@@ -142,12 +130,6 @@ npm run dev  # Web development
 ionic cap run ios  # Native iOS
 ```
 
-### 4. PoC/Testing
-```bash
-cd gun-playground  # or other PoC repos
-pnpm install
-pnpm dev
-```
 
 ## Repository Relationships
 
@@ -170,7 +152,6 @@ pnpm dev
 ### Development Dependencies
 - **Plugins** depend on tribelike for core types and components
 - **demo-plugin** provides templates for all plugin development
-- **PoC repos** test technologies that may be integrated into core
 - **locations** is independent but may integrate with core platform
 
 ## Getting Started
@@ -190,10 +171,6 @@ pnpm dev
 2. Use Ionic/Capacitor for cross-platform development
 3. Consider integration points with the core platform
 
-### For Research/Testing
-1. Use **PoC repositories** for experimentation
-2. Test new technologies before integrating into core
-3. Document findings for potential integration
 
 ## Documentation Structure
 

@@ -76,11 +76,6 @@ git clone git@github.com:toplocs/demo-plugin.git
 # Development Tools & Documentation
 git clone git@github.com:toplocs/tribelike.wiki.git
 
-# Research & Proof of Concepts (Optional)
-git clone git@github.com:toplocs/gun-sign.git
-git clone git@github.com:toplocs/gun-playground.git
-git clone git@github.com:toplocs/decentral-auth.git
-git clone git@github.com:toplocs/project-playground.git
 ```
 
 ### Quick Start Development
@@ -129,11 +124,6 @@ toplocs/ (workspace managed by toplocs-workspace repository)
 │   ├── link-plugin/       # Link sharing & bookmarking
 │   └── demo-plugin/       # Plugin development framework
 │
-└── 🔬 Research & Development (Optional)
-    ├── gun-sign/          # Gun.js server with custom storage
-    ├── gun-playground/    # Gun.js testing environment
-    ├── decentral-auth/    # WebAuthn + Gun.js authentication
-    └── project-playground/ # Architecture testing & patterns
 ```
 
 ## 🎯 What to Do Next
@@ -253,11 +243,6 @@ git clone git@github.com:toplocs/link-plugin.git
 # Development Tools
 git clone git@github.com:toplocs/demo-plugin.git
 
-# Proof of Concepts
-git clone git@github.com:toplocs/gun-sign.git
-git clone git@github.com:toplocs/gun-playground.git
-git clone git@github.com:toplocs/decentral-auth.git
-git clone git@github.com:toplocs/project-playground.git
 ```
 
 ## 🤝 Team Collaboration Benefits

@@ -15,11 +15,6 @@ link-plugin/
 demo-plugin/
 chat-plugin/
 
-# Proof of Concept Repositories
-gun-sign/
-gun-playground/
-decentral-auth/
-project-playground/
 
 # Documentation
 tribelike.wiki/

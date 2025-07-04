@@ -39,10 +39,6 @@ toplocs/ (this workspace repository)
 ├── location-plugin/    # Location plugin
 ├── link-plugin/        # Link sharing plugin
 ├── demo-plugin/        # Plugin development framework
-├── gun-sign/           # Gun.js server PoC
-├── gun-playground/     # Gun.js testing
-├── decentral-auth/     # Auth PoC
-├── project-playground/ # Architecture testing
 └── tribelike.wiki/     # Project wiki
 ```
 
@@ -80,7 +76,6 @@ TopLocs is a **decentralized P2P community platform** built on Gun.js:
 ### Repository Categories
 - **🏛️ Core**: tribelike (main platform), locations (mobile)
 - **🔌 Plugins**: All `*-plugin` repositories
-- **🔬 Research**: gun-*, decentral-auth, project-playground
 - **🛠️ Tools**: demo-plugin (development framework)
 
 ## 📚 Documentation Strategy

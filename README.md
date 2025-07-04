@@ -34,7 +34,6 @@ Auto-cloned repositories (after AI setup):
 ├── tribelike/         # ⭐ Core P2P platform
 ├── locations/         # Mobile app (Ionic)
 ├── *-plugin/          # Plugin repositories
-├── gun-*/             # Gun.js PoCs
 └── [others]           # Development tools & docs
 ```
 
