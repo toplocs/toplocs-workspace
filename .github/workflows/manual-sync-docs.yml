@@ -18,6 +18,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
+      repository-projects: write
       
     steps:
     - name: Checkout workspace
@@ -557,32 +559,48 @@ jobs:
 
     - name: Create Pull Request
       if: steps.check-changes.outputs.changes == 'true'
-      uses: peter-evans/create-pull-request@v5
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: |
-          🤖 AI-powered documentation sync - ${{ github.run_id }}
-          
-          Claude AI analyzed TopLocs repositories and applied intelligent documentation updates.
-          
-          - Analyzed TopLocs repositories for recent changes
-          - Used Claude AI to generate contextual documentation updates
-          - Applied AI-suggested improvements to CLAUDE.md, README.md, and ecosystem docs
-          - Updated documentation sync timestamp
-          - Generated comprehensive repository analysis report
-          
-          🤖 Generated with [Claude Code](https://claude.ai/code)
-          
-          Co-Authored-By: Claude <noreply@anthropic.com>
-        title: '🤖 AI-Powered Documentation Sync - ${{ github.run_id }}'
-        body-path: claude_pr_body.md
-        branch: docs-sync-${{ github.run_id }}
-        delete-branch: true
-        labels: |
-          documentation
-          sync
-          ai-powered
-          claude
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Configure git
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Create and switch to PR branch
+        PR_BRANCH="docs-sync-${{ github.run_id }}"
+        git checkout -b "$PR_BRANCH"
+        
+        # Commit changes
+        git add .
+        git commit -m "$(cat <<'EOF'
+        🤖 AI-powered documentation sync - ${{ github.run_id }}
+        
+        Claude AI analyzed TopLocs repositories and applied intelligent documentation updates.
+        
+        - Analyzed TopLocs repositories for recent changes
+        - Used Claude AI to generate contextual documentation updates
+        - Applied AI-suggested improvements to CLAUDE.md, README.md, and ecosystem docs
+        - Updated documentation sync timestamp
+        - Generated comprehensive repository analysis report
+        
+        🤖 Generated with [Claude Code](https://claude.ai/code)
+        
+        Co-Authored-By: Claude <noreply@anthropic.com>
+        EOF
+        )"
+        
+        # Push branch
+        git push origin "$PR_BRANCH"
+        
+        # Create PR using GitHub CLI
+        gh pr create \
+          --title "🤖 AI-Powered Documentation Sync - ${{ github.run_id }}" \
+          --body-file claude_pr_body.md \
+          --label "documentation,sync,ai-powered,claude" \
+          --base main \
+          --head "$PR_BRANCH"
+        
+        echo "✅ Pull request created successfully"
 
     - name: Output results
       run: |
