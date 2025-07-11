@@ -596,7 +596,6 @@ jobs:
         gh pr create \
           --title "🤖 AI-Powered Documentation Sync - ${{ github.run_id }}" \
           --body-file claude_pr_body.md \
-          --label "documentation,sync,ai-powered,claude" \
           --base main \
           --head "$PR_BRANCH"
         
