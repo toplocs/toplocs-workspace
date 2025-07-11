@@ -1,4 +1,4 @@
-name: Manual Documentation Sync
+name: Documentation Sync
 
 on:
   workflow_dispatch:
