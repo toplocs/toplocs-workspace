@@ -1,114 +1,94 @@
-# TopLocs Documentation Hub
+# TopLocs Documentation
 
-**Welcome to the TopLocs ecosystem documentation!** This centralized documentation hub provides comprehensive guidance for the entire decentralized P2P community platform.
+Welcome to the TopLocs ecosystem documentation. This documentation is organized into **two clear sections** to help you find what you need quickly.
 
 ## 📚 Documentation Structure
 
-### 🚀 Getting Started
-- **[Workspace Setup](./workspace/getting-started.md)** - Quick start guide for new developers
-- **[AI-Driven Setup](./workspace/ai-setup-guide.md)** - Detailed AI automation guide
+### 🎯 [Project Documentation](./project/)
+**For understanding, setup, and getting oriented with TopLocs**
 
-### 🏗️ Project Overview
-- **[Architecture](./project/architecture.md)** - P2P platform technical architecture
-- **[Ecosystem](./project/ecosystem.md)** - Repository relationships and overview
+- **Architecture & Design** - How TopLocs works as a P2P system
+- **Ecosystem Overview** - All repositories and their relationships
+- **Workspace Setup** - Complete environment setup guide
+- **AI Automation** - How AI orchestrates the multi-repository setup
+- **Getting Started** - Orientation for new developers
 
-### 🛠️ Development Guides
-- **[Plugin Development](./development/plugin-development.md)** - Create and maintain plugins
-- **[Debug Guide](./development/debug-guide.md)** - Debugging tools and techniques
-- **[Debug Tools](./development/debug-tools.md)** - Debug implementation details
+### 🔧 [Development Documentation](./development/)
+**For technical implementation and active development**
 
-### 🤖 Automation System
-- **[Automated Context Updates](./automation/automated-context-updates.md)** - GitHub Actions AI system
-- **[Workspace Automation](./automation/automated-context-updates.md)** - Additional automation documentation
+- **Plugin Development** - Creating plugins with Module Federation
+- **GunDB Developer Guide** - Data modeling and database patterns
+- **Debug Guide** - Debugging techniques and console commands
+- **Debug Tools** - Implementation guides for monitoring tools
 
-## 🎯 Quick Navigation
+## 🎯 Quick Start
 
-### New to TopLocs?
-1. **[Start Here](./workspace/getting-started.md)** - Complete setup guide
-2. **[Architecture Overview](./project/architecture.md)** - Understand the P2P platform
-3. **[Ecosystem Map](./project/ecosystem.md)** - Navigate all repositories
+### I'm New to TopLocs
+→ **Start with [Project Documentation](./project/)**
+1. [Getting Started](./project/getting-started.md) - Get oriented
+2. [Architecture](./project/architecture.md) - Understand the P2P design
+3. [Workspace Setup](./project/workspace-setup.md) - Set up your environment
 
-### Want to Contribute?
-1. **[Development Setup](./workspace/getting-started.md#development-environment-setup)** - Environment configuration
-2. **[Plugin Development](./development/plugin-development.md)** - Create new features
-3. **[Debug Tools](./development/debug-guide.md)** - Troubleshooting guide
+### I Want to Build Something
+→ **Go to [Development Documentation](./development/)**
+1. [Plugin Development](./development/plugin-development.md) - Build plugins
+2. [GunDB Guide](./development/gundb-guide.md) - Work with the database
+3. [Debug Guide](./development/debug-guide.md) - Debug issues
 
-### Team Management?
-1. **[Workspace Overview](./workspace/toplocs-workspace-overview.md)** - Team coordination tools
-2. **[Automation System](./automation/automated-context-updates.md)** - AI-powered maintenance
-3. **[Repository Management](./project/ecosystem.md)** - Multi-repo coordination
+### I Want to Understand the Workspace
+→ **Check [Project Documentation](./project/)**
+1. [Workspace Overview](./project/workspace-overview.md) - Understand the concept
+2. [AI Setup Guide](./project/ai-setup-guide.md) - How AI orchestrates setup
+3. [Automation](./project/automation.md) - GitHub Actions automation
 
-## 🌟 Key Features
+## 🤔 What is TopLocs?
 
-### AI-Driven Development
-- **Intelligent Setup**: Claude AI orchestrates complete environment setup
-- **Self-Updating Context**: Documentation stays current with code changes
-- **Cross-Repository Coordination**: AI understands ecosystem relationships
+TopLocs is a **decentralized P2P community platform** built on Gun.js that enables:
+- **User-owned data** through cryptographic keys
+- **Real-time synchronization** across all peers
+- **Offline-first functionality** with automatic sync
+- **Plugin-based architecture** for extensibility
+- **No central authority** - truly peer-to-peer
 
-### Decentralized Architecture
-- **P2P Platform**: No central servers, user-owned data
-- **Gun.js Database**: Real-time distributed graph database
-- **Plugin System**: Module Federation for extensible functionality
-- **Offline-First**: Works without internet connectivity
+## 🤔 What is the "Workspace"?
 
-### Developer Experience
-- **30-Second Setup**: AI automation eliminates configuration complexity
-- **Consistent Environments**: Same setup across all team members
-- **Live Documentation**: Always current with latest changes
-- **Intelligent Guidance**: AI provides context-aware development help
+The TopLocs **workspace** is a meta-repository that:
+- **Orchestrates** 10+ repositories in the ecosystem
+- **Provides AI context** for development across all repositories
+- **Automates setup** of complex multi-repository environments
+- **Centralizes documentation** while maintaining individual repository docs
 
-## 📖 Documentation Philosophy
+Think of it as "mission control" for the entire TopLocs ecosystem.
 
-This documentation is:
-- **Living**: Automatically updated with code changes
-- **Comprehensive**: Covers all aspects of the ecosystem
-- **Accessible**: Clear navigation and organization
-- **AI-Enhanced**: Leverages Claude for intelligent assistance
+## 📁 Complete Structure
 
-## 🔄 Documentation Updates
+```
+docs/
+├── README.md          # This overview (START HERE)
+├── project/           # Project understanding & setup
+│   ├── README.md               # Project docs navigation
+│   ├── architecture.md         # P2P architecture & design
+│   ├── ecosystem.md           # Repository relationships
+│   ├── getting-started.md     # Quick orientation
+│   ├── workspace-setup.md     # Complete setup guide
+│   ├── ai-setup-guide.md      # AI automation explained
+│   ├── workspace-overview.md  # Workspace concept
+│   └── automation.md         # GitHub Actions automation
+└── development/       # Technical development guides
+    ├── README.md               # Development docs navigation
+    ├── plugin-development.md  # Creating plugins
+    ├── gundb-guide.md        # GunDB data modeling
+    ├── debug-guide.md        # Debugging techniques
+    └── debug-tools.md        # Debug tools implementation
+```
 
-This documentation is automatically maintained through:
-- **GitHub Actions**: Continuous synchronization with repositories
-- **AI Analysis**: Claude-powered content updates
-- **Validation**: Automated link checking and health monitoring
-- **Community**: Team collaboration and review processes
+## 🔗 External Resources
 
-## 🆘 Getting Help
-
-### For Setup Issues
-- Check [Getting Started Guide](./workspace/getting-started.md)
-- Review [AI Setup Guide](./workspace/ai-setup-guide.md)
-- Use Claude AI for personalized assistance
-
-### For Development Questions
-- See [Architecture Guide](./project/architecture.md)
-- Check [Plugin Development](./development/plugin-development.md)
-- Review [Debug Guide](./development/debug-guide.md)
-
-### For System Issues
-- Check [Automation Documentation](./automation/)
-- Review GitHub Actions workflows
-- Create issues in relevant repositories
-
-## 🚀 Next Steps
-
-### New Developers
-1. **Clone the workspace**: `git clone git@github.com:toplocs/toplocs-workspace.git toplocs`
-2. **Start Claude**: `cd toplocs && claude`
-3. **Use setup prompt**: Let AI orchestrate your environment
-
-### Existing Team Members
-1. **Update workspace**: `git pull origin main`
-2. **Review latest docs**: Check for ecosystem updates
-3. **Use AI assistance**: Claude has full context for your work
-
-### Project Maintainers
-1. **Monitor automation**: Check GitHub Actions status
-2. **Review documentation**: Ensure accuracy and completeness
-3. **Update AI context**: Refine prompts and workflows
+- **Live Documentation**: https://toplocs.github.io/toplocs-workspace/
+- **Main Repository**: https://github.com/toplocs/tribelike
+- **Plugin SDK**: https://github.com/toplocs/plugin-dev-sdk
+- **Demo Plugin**: https://github.com/toplocs/demo-plugin
 
 ---
 
-**Welcome to the future of decentralized development!** 🎉
-
-*This documentation hub is your gateway to building innovative P2P communities with AI-assisted development workflows.*
+**Choose your path**: [Project Documentation](./project/) for understanding and setup, or [Development Documentation](./development/) for technical implementation.
