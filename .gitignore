@@ -1,8 +1,14 @@
 # TopLocs Workspace .gitignore
 # This workspace manages multiple repositories - exclude them from version control
 
+# Claude settings
+.claude/settings.local.json
+
 # Core Platform
 tribelike/
+
+# Plugin SDK
+plugin-dev-sdk/
 
 # Mobile App
 locations/
@@ -20,6 +26,7 @@ gun-sign/
 gun-playground/
 decentral-auth/
 project-playground/
+opendata
 
 # Documentation
 tribelike.wiki/
