@@ -95,9 +95,8 @@ jobs:
         # Set output for next steps
         if [ "$has_changes" = true ] || [ "${{ inputs.force_update }}" = "true" ]; then
           echo "UPDATE_NEEDED=true" >> $GITHUB_ENV
-          echo "REPO_SUMMARY<<EOF" >> $GITHUB_ENV
-          echo -e "$repo_summary" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          # Save repo summary to file for later use
+          echo -e "$repo_summary" > repo_summary.txt
           
           if [ "${{ github.event_name }}" = "schedule" ]; then
             echo "🌙 Nightly sync: Recent activity detected, proceeding with documentation updates"
@@ -131,7 +130,7 @@ jobs:
         Repository Activity:
         EOF
         
-        echo "$REPO_SUMMARY" >> ai_prompt.txt
+        cat repo_summary.txt >> ai_prompt.txt
         
         cat >> ai_prompt.txt << 'EOF'
         
@@ -284,56 +283,45 @@ jobs:
         # Create focused PR body
         if [ "${{ github.event_name }}" = "schedule" ]; then
           PR_TITLE="🌙 Nightly Documentation Sync - ${{ github.run_id }}"
-          cat > pr_body.md << EOF
-# 🌙 Nightly Documentation Sync
-
-AI-powered documentation updates based on recent repository activity.
-
-## 📋 Repository Activity
-$REPO_SUMMARY
-
-## 📝 Updated Files
-- $updated_files
-
-## 🤖 AI Process
-Claude AI analyzed recent changes and updated documentation to keep it current with the ecosystem.
-
-*Automated nightly sync at 3 AM UTC*
-EOF
+          echo "# 🌙 Nightly Documentation Sync" > pr_body.md
+          echo "" >> pr_body.md
+          echo "AI-powered documentation updates based on recent repository activity." >> pr_body.md
+          echo "" >> pr_body.md
+          echo "## 📋 Repository Activity" >> pr_body.md
+          cat repo_summary.txt >> pr_body.md
+          echo "" >> pr_body.md
+          echo "## 📝 Updated Files" >> pr_body.md
+          echo "- $updated_files" >> pr_body.md
+          echo "" >> pr_body.md
+          echo "## 🤖 AI Process" >> pr_body.md
+          echo "Claude AI analyzed recent changes and updated documentation to keep it current with the ecosystem." >> pr_body.md
+          echo "" >> pr_body.md
+          echo "*Automated nightly sync at 3 AM UTC*" >> pr_body.md
         else
           PR_TITLE="🤖 AI Documentation Sync - ${{ github.run_id }}"
-          cat > pr_body.md << EOF
-# 🤖 AI Documentation Sync
-
-AI-powered documentation updates based on repository analysis.
-
-## 📋 Repository Activity  
-$REPO_SUMMARY
-
-## 📝 Updated Files
-- $updated_files
-
-## 🤖 AI Process
-Claude AI analyzed changes and updated documentation accordingly.
-
-*Manual sync requested*
-EOF
+          echo "# 🤖 AI Documentation Sync" > pr_body.md
+          echo "" >> pr_body.md
+          echo "AI-powered documentation updates based on repository analysis." >> pr_body.md
+          echo "" >> pr_body.md
+          echo "## 📋 Repository Activity" >> pr_body.md
+          cat repo_summary.txt >> pr_body.md
+          echo "" >> pr_body.md
+          echo "## 📝 Updated Files" >> pr_body.md
+          echo "- $updated_files" >> pr_body.md
+          echo "" >> pr_body.md
+          echo "## 🤖 AI Process" >> pr_body.md
+          echo "Claude AI analyzed changes and updated documentation accordingly." >> pr_body.md
+          echo "" >> pr_body.md
+          echo "*Manual sync requested*" >> pr_body.md
         fi
         
         # Commit changes
         git add docs/ CLAUDE.md README.md
-        git commit -m "$(cat <<EOF
-        $PR_TITLE
-        
-        AI-powered documentation updates based on recent ecosystem activity.
-        
-        Updated: $updated_files
-        
-        🤖 Generated with [Claude Code](https://claude.ai/code)
-        
-        Co-Authored-By: Claude <noreply@anthropic.com>
-        EOF
-        )"
+        git commit -m "$PR_TITLE" \
+          -m "AI-powered documentation updates based on recent ecosystem activity." \
+          -m "Updated: $updated_files" \
+          -m "🤖 Generated with [Claude Code](https://claude.ai/code)" \
+          -m "Co-Authored-By: Claude <noreply@anthropic.com>"
         
         # Push branch and create PR
         git push origin "$PR_BRANCH"
@@ -347,7 +335,7 @@ EOF
         echo "✅ Pull request created successfully"
         
         # Clean up PR body file
-        rm -f pr_body.md files_updated.txt
+        rm -f pr_body.md files_updated.txt repo_summary.txt
 
     - name: Output results
       run: |
