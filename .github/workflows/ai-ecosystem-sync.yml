@@ -37,11 +37,6 @@ jobs:
       with:
         node-version: '20'
         
-    - name: Install jq
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y jq
-
     - name: Install GitHub CLI
       run: |
         gh --version || (
@@ -51,12 +46,11 @@ jobs:
           sudo apt install gh
         )
 
-    - name: Clone and analyze repositories
+    - name: Analyze repositories for changes
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        mkdir -p repos
-        cd repos
+        echo "🔍 Analyzing TopLocs repositories for recent changes..."
         
         # Define repositories to check
         if [ -n "${{ inputs.repositories }}" ]; then
@@ -79,516 +73,192 @@ jobs:
           )
         fi
         
-        # Create analysis file
-        echo "# Repository Analysis Report" > ../repo_analysis.md
-        echo "" >> ../repo_analysis.md
-        echo "**Analysis Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> ../repo_analysis.md
-        if [ "${{ github.event_name }}" = "schedule" ]; then
-          echo "**Trigger**: Scheduled nightly sync" >> ../repo_analysis.md
-        else
-          echo "**Trigger**: Manual sync requested" >> ../repo_analysis.md
-        fi
-        echo "" >> ../repo_analysis.md
-        
-        # Track changes
+        # Check for recent activity
         has_changes=false
+        repo_summary=""
         
         for repo in "${repositories[@]}"; do
-          echo "🔍 Analyzing $repo..."
-          
           if gh repo view "$repo" &> /dev/null; then
-            # Clone repository
-            repo_name=$(basename "$repo")
-            if [ ! -d "$repo_name" ]; then
-              echo "  📥 Cloning $repo..."
-              gh repo clone "$repo" "$repo_name"
-            else
-              echo "  🔄 Updating $repo..."
-              cd "$repo_name"
-              git fetch origin
-              git reset --hard origin/main || git reset --hard origin/master
-              cd ..
-            fi
+            # Get recent commits (last 30 days)
+            recent_commits=$(gh api "repos/$repo/commits" \
+              --jq 'map(select(.commit.author.date > (now - 30*24*3600 | strftime("%Y-%m-%dT%H:%M:%SZ")))) | length' \
+              2>/dev/null || echo "0")
             
-            cd "$repo_name"
-            
-            # Get repository information
-            echo "## $repo" >> ../../repo_analysis.md
-            echo "" >> ../../repo_analysis.md
-            
-            # Latest commit info
-            latest_commit=$(git log -1 --format="%H|%an|%ad|%s" --date=short)
-            IFS='|' read -ra COMMIT_INFO <<< "$latest_commit"
-            echo "- **Latest Commit**: ${COMMIT_INFO[0]:0:7} by ${COMMIT_INFO[1]} on ${COMMIT_INFO[2]}" >> ../../repo_analysis.md
-            echo "- **Message**: ${COMMIT_INFO[3]}" >> ../../repo_analysis.md
-            
-            # Check for recent activity (last 30 days)
-            recent_commits=$(git log --since="30 days ago" --oneline | wc -l)
-            echo "- **Recent Activity**: $recent_commits commits in last 30 days" >> ../../repo_analysis.md
-            
-            # Check for important files
-            if [ -f "README.md" ]; then
-              readme_size=$(wc -c < README.md)
-              echo "- **README**: $readme_size characters" >> ../../repo_analysis.md
-            fi
-            
-            if [ -f "package.json" ]; then
-              # Get package info
-              if command -v jq &> /dev/null; then
-                pkg_name=$(jq -r '.name // "unknown"' package.json)
-                pkg_version=$(jq -r '.version // "unknown"' package.json)
-                echo "- **Package**: $pkg_name@$pkg_version" >> ../../repo_analysis.md
-                
-                # Check for important scripts
-                scripts=$(jq -r '.scripts // {} | keys | join(", ")' package.json)
-                if [ -n "$scripts" ] && [ "$scripts" != "" ]; then
-                  echo "- **Scripts**: $scripts" >> ../../repo_analysis.md
-                fi
-              fi
-            fi
-            
-            # Check for documentation
-            if [ -d "docs" ]; then
-              doc_files=$(find docs -name "*.md" | wc -l)
-              echo "- **Documentation**: $doc_files markdown files in docs/" >> ../../repo_analysis.md
-            fi
-            
-            # Check if this repo has significant changes (commits in last 7 days)
-            if [ $recent_commits -gt 0 ]; then
+            if [ "$recent_commits" -gt 0 ]; then
               has_changes=true
-              echo "- **Status**: 🔥 **Recent activity detected**" >> ../../repo_analysis.md
-            else
-              echo "- **Status**: ✅ Stable" >> ../../repo_analysis.md
+              latest_commit=$(gh api "repos/$repo/commits" --jq '.[0].commit.message' 2>/dev/null || echo "No recent commits")
+              repo_summary="$repo_summary- **$repo**: $recent_commits commits (latest: ${latest_commit:0:60}...)\n"
             fi
-            
-            echo "" >> ../../repo_analysis.md
-            cd ..
-          else
-            echo "  ❌ Repository $repo not accessible"
-            echo "## $repo" >> ../repo_analysis.md
-            echo "" >> ../repo_analysis.md
-            echo "- **Status**: ❌ **Not accessible**" >> ../repo_analysis.md
-            echo "" >> ../repo_analysis.md
           fi
         done
         
         # Set output for next steps
         if [ "$has_changes" = true ] || [ "${{ inputs.force_update }}" = "true" ]; then
           echo "UPDATE_NEEDED=true" >> $GITHUB_ENV
+          echo "REPO_SUMMARY<<EOF" >> $GITHUB_ENV
+          echo -e "$repo_summary" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "🌙 Nightly sync: Recent activity detected, proceeding with Claude AI analysis"
+            echo "🌙 Nightly sync: Recent activity detected, proceeding with documentation updates"
           else
             echo "🔄 Update needed: Recent activity detected or force update requested"
           fi
         else
           echo "UPDATE_NEEDED=false" >> $GITHUB_ENV
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "😴 Nightly sync: No significant changes detected, skipping Claude AI analysis"
+            echo "😴 Nightly sync: No significant changes detected"
           else
             echo "✅ No significant changes detected"
           fi
         fi
 
-    - name: Generate documentation updates with Claude AI
+    - name: Generate AI documentation updates
       if: env.UPDATE_NEEDED == 'true'
       env:
         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       run: |
-        echo "🤖 Generating documentation updates with Claude AI..."
+        echo "🤖 Generating focused documentation updates with Claude AI..."
         
-        # Create comprehensive context for Claude
-        cat > claude_context.md << 'EOF'
-        # TopLocs Documentation Update Context
-        
-        ## Current Documentation State
-        
-        ### CLAUDE.md
+        # Create a focused prompt for Claude
+        cat > ai_prompt.txt << 'EOF'
+        You are maintaining documentation for the TopLocs P2P platform ecosystem. Based on the repository activity below, provide ONLY the specific text changes needed for these files:
+
+        1. CLAUDE.md - Update if repository structure or setup process changed
+        2. README.md - Update if main workflow or architecture changed  
+        3. docs/project/ecosystem.md - Update if new repositories were added or relationships changed
+
+        Repository Activity:
         EOF
         
-        echo '```markdown' >> claude_context.md
-        cat CLAUDE.md >> claude_context.md
-        echo '```' >> claude_context.md
+        echo "$REPO_SUMMARY" >> ai_prompt.txt
         
-        echo '' >> claude_context.md
-        echo '### README.md' >> claude_context.md
-        echo '```markdown' >> claude_context.md
-        cat README.md >> claude_context.md
-        echo '```' >> claude_context.md
+        cat >> ai_prompt.txt << 'EOF'
         
-        echo '' >> claude_context.md
-        echo '### docs/project/ecosystem.md' >> claude_context.md
-        echo '```markdown' >> claude_context.md
-        cat docs/project/ecosystem.md >> claude_context.md
-        echo '```' >> claude_context.md
+        Current Documentation State:
         
-        echo '' >> claude_context.md
-        echo '## Repository Analysis' >> claude_context.md
-        cat repo_analysis.md >> claude_context.md
-        
-        # Create Claude API request
-        cat > claude_request.json << 'EOF'
-        {
-          "model": "claude-3-5-sonnet-20241022",
-          "max_tokens": 4000,
-          "messages": [
-            {
-              "role": "user",
-              "content": "You are a technical documentation expert for the TopLocs P2P platform ecosystem. Based on the repository analysis and current documentation below, please:\n\n1. Analyze what documentation updates are needed\n2. Generate specific, actionable updates for CLAUDE.md, README.md, and docs/project/ecosystem.md\n3. Focus on:\n   - Repository status changes\n   - New features or capabilities\n   - Updated setup instructions\n   - Architecture changes\n   - Plugin ecosystem updates\n\nProvide your response in JSON format with these fields:\n- analysis: string (your analysis of what needs updating)\n- claude_md_updates: string (specific updates for CLAUDE.md)\n- readme_updates: string (specific updates for README.md)\n- ecosystem_updates: string (specific updates for docs/project/ecosystem.md)\n- summary: string (brief summary of all changes)\n\nContext:\n"
-            }
-          ]
-        }
+        === CLAUDE.md ===
         EOF
         
-        # Add the context to the Claude request
-        python3 << 'PYTHON_SCRIPT'
-        import json
-        import sys
+        cat CLAUDE.md >> ai_prompt.txt
         
-        # Read the context
-        with open('claude_context.md', 'r') as f:
-            context = f.read()
+        cat >> ai_prompt.txt << 'EOF'
         
-        # Read the request template
-        with open('claude_request.json', 'r') as f:
-            request = json.load(f)
+        === README.md ===
+        EOF
         
-        # Add context to the user message
-        request['messages'][0]['content'] += context
+        cat README.md >> ai_prompt.txt
         
-        # Write the complete request
-        with open('claude_request.json', 'w') as f:
-            json.dump(request, f, indent=2)
-        PYTHON_SCRIPT
+        cat >> ai_prompt.txt << 'EOF'
+        
+        === docs/project/ecosystem.md ===
+        EOF
+        
+        cat docs/project/ecosystem.md >> ai_prompt.txt
+        
+        cat >> ai_prompt.txt << 'EOF'
+        
+        RESPOND ONLY WITH:
+        1. "NO_CHANGES" if no documentation updates are needed
+        2. Or specific file updates in this format:
+        
+        FILE: CLAUDE.md
+        [complete updated file content]
+        
+        FILE: README.md  
+        [complete updated file content]
+        
+        FILE: docs/project/ecosystem.md
+        [complete updated file content]
+        
+        Only include files that actually need changes. Be concise and focus on real improvements.
+        EOF
         
         # Call Claude API
         response=$(curl -s -X POST "https://api.anthropic.com/v1/messages" \
           -H "Content-Type: application/json" \
           -H "x-api-version: 2023-06-01" \
           -H "Authorization: Bearer $ANTHROPIC_API_KEY" \
-          -d @claude_request.json)
+          -d '{
+            "model": "claude-3-5-sonnet-20241022",
+            "max_tokens": 4000,
+            "messages": [
+              {
+                "role": "user",
+                "content": "'$(cat ai_prompt.txt | sed 's/"/\\"/g' | tr '\n' ' ')'"
+              }
+            ]
+          }')
         
-        echo "🤖 Claude API Response received"
-        echo "$response" > claude_response.json
+        echo "$response" > ai_response.json
         
-        # Extract Claude's response content
+        # Extract Claude's response
         claude_content=$(echo "$response" | jq -r '.content[0].text' 2>/dev/null || echo "")
         
-        if [ -n "$claude_content" ] && [ "$claude_content" != "null" ]; then
-          echo "✅ Claude analysis successful"
-          echo "$claude_content" > claude_analysis.json
-          
-          # Try to parse as JSON and extract updates
-          python3 << 'PYTHON_SCRIPT'
-        import json
-        import sys
+        if [ -n "$claude_content" ] && [ "$claude_content" != "null" ] && [ "$claude_content" != "NO_CHANGES" ]; then
+          echo "AI_UPDATES=true" >> $GITHUB_ENV
+          echo "$claude_content" > ai_updates.txt
+          echo "✅ Claude provided documentation updates"
+        else
+          echo "AI_UPDATES=false" >> $GITHUB_ENV
+          echo "ℹ️ Claude determined no documentation updates needed"
+        fi
+
+    - name: Apply documentation updates
+      if: env.UPDATE_NEEDED == 'true' && env.AI_UPDATES == 'true'
+      run: |
+        echo "📝 Applying Claude's documentation updates..."
+        
+        # Parse and apply file updates
+        python3 << 'PYTHON_SCRIPT'
+        import re
+        import os
         
         try:
-            with open('claude_analysis.json', 'r') as f:
+            with open('ai_updates.txt', 'r') as f:
                 content = f.read()
             
-            # Try to extract JSON from Claude's response
-            if '```json' in content:
-                json_start = content.find('```json') + 7
-                json_end = content.find('```', json_start)
-                json_content = content[json_start:json_end].strip()
-            elif content.startswith('{'):
-                json_content = content
-            else:
-                print("⚠️  Claude response is not in expected JSON format")
-                sys.exit(1)
+            # Extract file updates
+            file_pattern = r'FILE: ([^\n]+)\n(.*?)(?=\nFILE: |$)'
+            matches = re.findall(file_pattern, content, re.DOTALL)
             
-            analysis = json.loads(json_content)
+            files_updated = []
+            for file_path, file_content in matches:
+                file_path = file_path.strip()
+                file_content = file_content.strip()
+                
+                # Only update if content is substantial
+                if len(file_content) > 10:
+                    with open(file_path, 'w') as f:
+                        f.write(file_content)
+                    files_updated.append(file_path)
+                    print(f"✅ Updated {file_path}")
             
-            # Write individual update files
-            with open('claude_md_updates.txt', 'w') as f:
-                f.write(analysis.get('claude_md_updates', ''))
-            
-            with open('readme_updates.txt', 'w') as f:
-                f.write(analysis.get('readme_updates', ''))
-            
-            with open('ecosystem_updates.txt', 'w') as f:
-                f.write(analysis.get('ecosystem_updates', ''))
-            
-            with open('update_summary.txt', 'w') as f:
-                f.write(analysis.get('summary', ''))
-            
-            print("✅ Claude analysis parsed successfully")
-            
+            # Save list of updated files
+            with open('files_updated.txt', 'w') as f:
+                f.write('\n'.join(files_updated))
+                
         except Exception as e:
-            print(f"❌ Error parsing Claude response: {e}")
-            print("Raw response:")
-            with open('claude_analysis.json', 'r') as f:
-                print(f.read())
-            sys.exit(1)
+            print(f"❌ Error applying updates: {e}")
+            exit(1)
         PYTHON_SCRIPT
-          
-        else
-          echo "❌ Claude API call failed or returned empty response"
-          echo "Response: $response"
-          echo "Creating fallback analysis..."
-          
-          # Create fallback updates
-          echo "Repository analysis completed. Manual review recommended." > update_summary.txt
-          echo "" > claude_md_updates.txt
-          echo "" > readme_updates.txt
-          echo "" > ecosystem_updates.txt
-        fi
 
-    - name: Apply Claude AI documentation updates
-      if: env.UPDATE_NEEDED == 'true'
+    - name: Clean up temporary files
+      if: always()
       run: |
-        echo "📄 Applying Claude AI documentation updates..."
-        
-        # Apply CLAUDE.md updates
-        if [ -f "claude_md_updates.txt" ] && [ -s "claude_md_updates.txt" ]; then
-          echo "📝 Applying CLAUDE.md updates..."
-          
-          # Create backup
-          cp CLAUDE.md CLAUDE.md.backup
-          
-          # Apply updates using Python for better text processing
-          python3 << 'PYTHON_SCRIPT'
-        import re
-        import sys
-        
-        try:
-            with open('claude_md_updates.txt', 'r') as f:
-                updates = f.read().strip()
-            
-            if updates:
-                with open('CLAUDE.md', 'r') as f:
-                    current_content = f.read()
-                
-                # Apply the updates (this is a simplified approach)
-                # In a real implementation, you'd want more sophisticated merging
-                updated_content = current_content
-                
-                # Add timestamp and updates marker
-                import datetime
-                timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
-                
-                # Add or update sync timestamp
-                if "Last documentation sync:" in updated_content:
-                    updated_content = re.sub(
-                        r'Last documentation sync:.*',
-                        f'Last documentation sync: {timestamp}',
-                        updated_content
-                    )
-                else:
-                    updated_content += f"\n\n---\n\n*Last documentation sync: {timestamp}*\n"
-                
-                # Add Claude's updates as a comment for manual review
-                updated_content += f"\n\n<!-- Claude AI suggested updates:\n{updates}\n-->\n"
-                
-                with open('CLAUDE.md', 'w') as f:
-                    f.write(updated_content)
-                
-                print("✅ CLAUDE.md updated with AI suggestions")
-            else:
-                print("ℹ️  No CLAUDE.md updates needed")
-                
-        except Exception as e:
-            print(f"❌ Error updating CLAUDE.md: {e}")
-            # Restore backup
-            import shutil
-            shutil.copy('CLAUDE.md.backup', 'CLAUDE.md')
-        PYTHON_SCRIPT
-        fi
-        
-        # Apply README.md updates
-        if [ -f "readme_updates.txt" ] && [ -s "readme_updates.txt" ]; then
-          echo "📝 Applying README.md updates..."
-          
-          # Create backup
-          cp README.md README.md.backup
-          
-          python3 << 'PYTHON_SCRIPT'
-        import re
-        import sys
-        
-        try:
-            with open('readme_updates.txt', 'r') as f:
-                updates = f.read().strip()
-            
-            if updates:
-                with open('README.md', 'r') as f:
-                    current_content = f.read()
-                
-                # Add Claude's updates as a comment for manual review
-                updated_content = current_content + f"\n\n<!-- Claude AI suggested updates:\n{updates}\n-->\n"
-                
-                with open('README.md', 'w') as f:
-                    f.write(updated_content)
-                
-                print("✅ README.md updated with AI suggestions")
-            else:
-                print("ℹ️  No README.md updates needed")
-                
-        except Exception as e:
-            print(f"❌ Error updating README.md: {e}")
-            # Restore backup
-            import shutil
-            shutil.copy('README.md.backup', 'README.md')
-        PYTHON_SCRIPT
-        fi
-        
-        # Apply ecosystem.md updates
-        if [ -f "ecosystem_updates.txt" ] && [ -s "ecosystem_updates.txt" ]; then
-          echo "📝 Applying ecosystem.md updates..."
-          
-          # Create backup
-          cp docs/project/ecosystem.md docs/project/ecosystem.md.backup
-          
-          python3 << 'PYTHON_SCRIPT'
-        import re
-        import sys
-        
-        try:
-            with open('ecosystem_updates.txt', 'r') as f:
-                updates = f.read().strip()
-            
-            if updates:
-                with open('docs/project/ecosystem.md', 'r') as f:
-                    current_content = f.read()
-                
-                # Add Claude's updates as a comment for manual review
-                updated_content = current_content + f"\n\n<!-- Claude AI suggested updates:\n{updates}\n-->\n"
-                
-                with open('docs/project/ecosystem.md', 'w') as f:
-                    f.write(updated_content)
-                
-                print("✅ ecosystem.md updated with AI suggestions")
-            else:
-                print("ℹ️  No ecosystem.md updates needed")
-                
-        except Exception as e:
-            print(f"❌ Error updating ecosystem.md: {e}")
-            # Restore backup
-            import shutil
-            shutil.copy('docs/project/ecosystem.md.backup', 'docs/project/ecosystem.md')
-        PYTHON_SCRIPT
-        fi
-        
-        # Create analysis archive
-        mkdir -p docs/analysis
-        cp repo_analysis.md docs/analysis/latest-repo-analysis.md
-        
-        # Create Claude AI analysis summary
-        if [ -f "update_summary.txt" ]; then
-          echo "# Claude AI Analysis Summary" > docs/analysis/claude-analysis-summary.md
-          echo "" >> docs/analysis/claude-analysis-summary.md
-          echo "**Generated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> docs/analysis/claude-analysis-summary.md
-          echo "" >> docs/analysis/claude-analysis-summary.md
-          cat update_summary.txt >> docs/analysis/claude-analysis-summary.md
-        fi
-        
-        echo "✅ Documentation updates applied"
-        
-        # Create comprehensive PR body with Claude's analysis
-        if [ "${{ github.event_name }}" = "schedule" ]; then
-          cat > claude_pr_body.md << 'EOF'
-        # 🌙 Nightly AI-Powered Documentation Sync
-        
-        This PR contains **Claude AI-generated documentation updates** from the automated nightly sync process.
-        
-        ## 🕒 Automated Sync Process
-        
-        This sync runs automatically every night at 3 AM UTC to keep documentation current with ecosystem changes.
-        
-        ## 🧠 Claude AI Analysis
-        
-        Claude analyzed the current documentation state and recent repository changes to provide contextual updates.
-        
-        EOF
-        else
-          cat > claude_pr_body.md << 'EOF'
-        # 🤖 AI-Powered Documentation Sync
-        
-        This PR contains **Claude AI-generated documentation updates** based on intelligent analysis of the TopLocs ecosystem.
-        
-        ## 🧠 Claude AI Analysis
-        
-        Claude analyzed the current documentation state and recent repository changes to provide contextual updates.
-        
-        EOF
-        fi
-        
-        # Add Claude's analysis summary
-        if [ -f "update_summary.txt" ]; then
-          echo "### 📋 AI Analysis Summary" >> claude_pr_body.md
-          echo "" >> claude_pr_body.md
-          cat update_summary.txt >> claude_pr_body.md
-          echo "" >> claude_pr_body.md
-        fi
-        
-        echo "## 📚 Applied Updates" >> claude_pr_body.md
-        echo "" >> claude_pr_body.md
-        
-        # Show what was updated
-        if [ -f "claude_md_updates.txt" ] && [ -s "claude_md_updates.txt" ]; then
-          echo "### ✅ CLAUDE.md Updates" >> claude_pr_body.md
-          echo "Claude AI provided contextual updates to the development context file." >> claude_pr_body.md
-          echo "" >> claude_pr_body.md
-        fi
-        
-        if [ -f "readme_updates.txt" ] && [ -s "readme_updates.txt" ]; then
-          echo "### ✅ README.md Updates" >> claude_pr_body.md
-          echo "Claude AI suggested improvements to the main project README." >> claude_pr_body.md
-          echo "" >> claude_pr_body.md
-        fi
-        
-        if [ -f "ecosystem_updates.txt" ] && [ -s "ecosystem_updates.txt" ]; then
-          echo "### ✅ Ecosystem Documentation Updates" >> claude_pr_body.md
-          echo "Claude AI provided updates to the repository ecosystem documentation." >> claude_pr_body.md
-          echo "" >> claude_pr_body.md
-        fi
-        
-        cat >> claude_pr_body.md << 'EOF'
-        ## 🔍 Repository Analysis
-        
-        EOF
-        
-        # Add repository analysis
-        cat repo_analysis.md >> claude_pr_body.md
-        
-        cat >> claude_pr_body.md << 'EOF'
-        
-        ## 🎯 How It Works
-        
-        1. **Repository Analysis**: Automated analysis of all TopLocs repositories
-        2. **AI Context Generation**: Claude AI receives current documentation + analysis
-        3. **Intelligent Updates**: Claude generates contextual, relevant updates
-        4. **Safe Application**: Updates are applied with backups and error handling
-        5. **Review Process**: All changes are visible in this PR for review
-        
-        ## 🔐 AI Safety
-        
-        - Updates are added as HTML comments for manual review
-        - Backups are created before applying changes
-        - Error handling restores original files if updates fail
-        - Human review is required before merging
-        
-        ## 🤖 Claude AI Integration
-        
-        This workflow uses the Claude API to provide intelligent, context-aware documentation updates that understand:
-        - Repository relationships and dependencies
-        - Recent changes and their impact
-        - Documentation patterns and best practices
-        - TopLocs ecosystem architecture
-        
-        *This PR was generated by Claude AI with human oversight.*
-        EOF
+        # Remove all temporary files
+        rm -f ai_prompt.txt ai_response.json ai_updates.txt
 
-    - name: Check for changes
+    - name: Check for actual changes
       id: check-changes
       run: |
-        git add .
+        git add docs/ CLAUDE.md README.md
         if git diff --staged --quiet; then
           echo "changes=false" >> $GITHUB_OUTPUT
-          echo "No changes to commit"
+          echo "No actual documentation changes made"
         else
           echo "changes=true" >> $GITHUB_OUTPUT
-          echo "Changes detected"
+          echo "Documentation changes detected"
         fi
 
     - name: Create Pull Request
@@ -604,26 +274,60 @@ jobs:
         PR_BRANCH="docs-sync-${{ github.run_id }}"
         git checkout -b "$PR_BRANCH"
         
-        # Commit changes
-        git add .
-        
-        # Set commit message based on trigger type
-        if [ "${{ github.event_name }}" = "schedule" ]; then
-          COMMIT_PREFIX="🌙 Nightly AI-powered documentation sync"
+        # Get list of updated files
+        if [ -f "files_updated.txt" ]; then
+          updated_files=$(cat files_updated.txt | tr '\n' ' ')
         else
-          COMMIT_PREFIX="🤖 AI-powered documentation sync"
+          updated_files="documentation files"
         fi
         
+        # Create focused PR body
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          PR_TITLE="🌙 Nightly Documentation Sync - ${{ github.run_id }}"
+          cat > pr_body.md << EOF
+# 🌙 Nightly Documentation Sync
+
+AI-powered documentation updates based on recent repository activity.
+
+## 📋 Repository Activity
+$REPO_SUMMARY
+
+## 📝 Updated Files
+- $updated_files
+
+## 🤖 AI Process
+Claude AI analyzed recent changes and updated documentation to keep it current with the ecosystem.
+
+*Automated nightly sync at 3 AM UTC*
+EOF
+        else
+          PR_TITLE="🤖 AI Documentation Sync - ${{ github.run_id }}"
+          cat > pr_body.md << EOF
+# 🤖 AI Documentation Sync
+
+AI-powered documentation updates based on repository analysis.
+
+## 📋 Repository Activity  
+$REPO_SUMMARY
+
+## 📝 Updated Files
+- $updated_files
+
+## 🤖 AI Process
+Claude AI analyzed changes and updated documentation accordingly.
+
+*Manual sync requested*
+EOF
+        fi
+        
+        # Commit changes
+        git add docs/ CLAUDE.md README.md
         git commit -m "$(cat <<EOF
-        $COMMIT_PREFIX - ${{ github.run_id }}
+        $PR_TITLE
         
-        Claude AI analyzed TopLocs repositories and applied intelligent documentation updates.
+        AI-powered documentation updates based on recent ecosystem activity.
         
-        - Analyzed TopLocs repositories for recent changes
-        - Used Claude AI to generate contextual documentation updates
-        - Applied AI-suggested improvements to CLAUDE.md, README.md, and ecosystem docs
-        - Updated documentation sync timestamp
-        - Generated comprehensive repository analysis report
+        Updated: $updated_files
         
         🤖 Generated with [Claude Code](https://claude.ai/code)
         
@@ -631,42 +335,26 @@ jobs:
         EOF
         )"
         
-        # Push branch
+        # Push branch and create PR
         git push origin "$PR_BRANCH"
-        
-        # Create PR using GitHub CLI
-        if [ "${{ github.event_name }}" = "schedule" ]; then
-          PR_TITLE="🌙 Nightly AI-Powered Documentation Sync - ${{ github.run_id }}"
-        else
-          PR_TITLE="🤖 AI-Powered Documentation Sync - ${{ github.run_id }}"
-        fi
         
         gh pr create \
           --title "$PR_TITLE" \
-          --body-file claude_pr_body.md \
+          --body-file pr_body.md \
           --base main \
           --head "$PR_BRANCH"
         
         echo "✅ Pull request created successfully"
+        
+        # Clean up PR body file
+        rm -f pr_body.md files_updated.txt
 
     - name: Output results
       run: |
-        echo "📋 Analysis Results:"
-        cat repo_analysis.md
-        
         if [ "${{ steps.check-changes.outputs.changes }}" = "true" ]; then
-          echo ""
-          echo "✅ Pull request created with documentation sync"
+          echo "✅ Documentation sync completed with updates"
+        elif [ "$UPDATE_NEEDED" = "true" ]; then
+          echo "ℹ️ AI analysis completed - no documentation changes needed"
         else
-          echo ""
-          echo "ℹ️ No changes needed - documentation is current"
-        fi
-        
-        if [ "$UPDATE_NEEDED" = "false" ]; then
-          echo ""
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "💡 Nightly sync complete: No changes needed. Documentation stays current automatically."
-          else
-            echo "💡 Tip: Use 'force_update' option to create a PR even without recent repository changes"
-          fi
+          echo "😴 No repository activity detected - documentation stays current"
         fi
