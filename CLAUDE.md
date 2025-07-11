@@ -150,6 +150,7 @@ cd [your-plugin] # Work on specific plugin
 - **Keep docs synchronized** across repositories
 - **Update getting-started guides** with new repository additions
 - **Maintain AI context files** for optimal development assistance
+- **Simplified automation** with minimal GitHub Actions (docs deployment only)
 
 ## 🚀 Getting Started Commands
 

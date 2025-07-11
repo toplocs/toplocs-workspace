@@ -88,8 +88,9 @@ TopLocs is a **decentralized P2P community platform** built on Gun.js:
 
 ### Documentation Maintenance
 - Keep docs synchronized across repos
-- Update AI context as ecosystem evolves
+- Update AI context as ecosystem evolves  
 - Maintain getting-started guides
+- Simplified GitHub Actions (deploy docs only)
 
 ## 📚 Centralized Documentation Hub
 
