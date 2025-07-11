@@ -6,7 +6,7 @@ This document explains the streamlined GitHub Actions setup that focuses on esse
 
 The simplified automation system provides:
 - **Reliable documentation deployment** via GitHub Pages
-- **Optional repository notifications** through a simple template
+- **Manual documentation sync** with intelligent repository analysis
 - **Manual coordination** for context updates when needed
 - **Maintainable workflows** that actually work without failures
 
@@ -21,9 +21,6 @@ graph TD
     E --> F[Analyze All Repositories]
     F --> G[Generate Analysis Report]
     G --> H[Create PR with Recommendations]
-    
-    I[Template Available] --> J[notify-workspace-template.yml]
-    J --> K[Can be copied to other repos if needed]
 ```
 
 ## 📋 Workflow Components
@@ -63,13 +60,6 @@ graph TD
 
 **Status**: ✅ **Manual control with intelligent analysis**
 
-### 3. Repository Notification Template (`notify-workspace-template.yml`)
-
-**Location**: `.github/workflows/notify-workspace-template.yml` in workspace  
-**Purpose**: Template for other repositories to notify workspace of changes  
-**Usage**: Copy to other repositories if cross-repo notifications are needed
-
-**Status**: ✅ **Available as template only**
 
 ## 🔄 Removed Complex Workflows
 
@@ -79,8 +69,9 @@ The following workflows were removed to improve reliability:
 - ❌ `update-context.yml` - Used non-existent CLI dependencies  
 - ❌ `periodic-validation.yml` - Overly complex validation logic
 - ❌ `notify-repositories.yml` - Complex setup that wasn't needed
+- ❌ `notify-workspace-template.yml` - Unused template for cross-repo notifications
 
-**Result**: From 6 workflows to 3 focused ones = **50% reduction in complexity**
+**Result**: From 6 workflows to 2 focused ones = **67% reduction in complexity**
 
 ## 🔧 Setup and Configuration
 
@@ -101,23 +92,6 @@ The manual sync workflow requires no setup - it's ready to use:
 3. **Flexible options**: Can analyze specific repositories or all repositories
 4. **Force update**: Can create PRs even without recent changes
 
-### Optional Repository Notifications
-
-If you want other repositories to notify this workspace:
-
-1. **Copy the template**:
-   ```bash
-   # Copy template to target repository
-   cp .github/workflows/notify-workspace-template.yml [TARGET_REPO]/.github/workflows/notify-workspace.yml
-   ```
-
-2. **Configure dispatch token** in the target repository:
-   ```bash
-   gh secret set WORKSPACE_DISPATCH_TOKEN --repo [TARGET_REPO] --body [TOKEN]
-   ```
-
-3. **Token requirements**: The token needs `repo` scope for repository dispatch
-
 ### No Complex Setup Required
 
 Unlike the previous system:
@@ -125,6 +99,7 @@ Unlike the previous system:
 - ❌ No complex secret management
 - ❌ No repository coordination scripts
 - ❌ No periodic validation setup
+- ❌ No cross-repository notification templates
 
 ✅ **Just works** with minimal configuration!
 
