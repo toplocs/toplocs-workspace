@@ -1,6 +1,11 @@
-name: Documentation Sync
+name: AI-Powered Ecosystem Sync
 
 on:
+  # Run automatically every night at 3 AM UTC
+  schedule:
+    - cron: '0 3 * * *'
+  
+  # Allow manual triggering with options
   workflow_dispatch:
     inputs:
       repositories:
@@ -78,7 +83,11 @@ jobs:
         echo "# Repository Analysis Report" > ../repo_analysis.md
         echo "" >> ../repo_analysis.md
         echo "**Analysis Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> ../repo_analysis.md
-        echo "**Trigger**: Manual sync requested" >> ../repo_analysis.md
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          echo "**Trigger**: Scheduled nightly sync" >> ../repo_analysis.md
+        else
+          echo "**Trigger**: Manual sync requested" >> ../repo_analysis.md
+        fi
         echo "" >> ../repo_analysis.md
         
         # Track changes
@@ -166,10 +175,18 @@ jobs:
         # Set output for next steps
         if [ "$has_changes" = true ] || [ "${{ inputs.force_update }}" = "true" ]; then
           echo "UPDATE_NEEDED=true" >> $GITHUB_ENV
-          echo "🔄 Update needed: Recent activity detected or force update requested"
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "🌙 Nightly sync: Recent activity detected, proceeding with Claude AI analysis"
+          else
+            echo "🔄 Update needed: Recent activity detected or force update requested"
+          fi
         else
           echo "UPDATE_NEEDED=false" >> $GITHUB_ENV
-          echo "✅ No significant changes detected"
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "😴 Nightly sync: No significant changes detected, skipping Claude AI analysis"
+          else
+            echo "✅ No significant changes detected"
+          fi
         fi
 
     - name: Generate documentation updates with Claude AI
@@ -468,7 +485,23 @@ jobs:
         echo "✅ Documentation updates applied"
         
         # Create comprehensive PR body with Claude's analysis
-        cat > claude_pr_body.md << 'EOF'
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          cat > claude_pr_body.md << 'EOF'
+        # 🌙 Nightly AI-Powered Documentation Sync
+        
+        This PR contains **Claude AI-generated documentation updates** from the automated nightly sync process.
+        
+        ## 🕒 Automated Sync Process
+        
+        This sync runs automatically every night at 3 AM UTC to keep documentation current with ecosystem changes.
+        
+        ## 🧠 Claude AI Analysis
+        
+        Claude analyzed the current documentation state and recent repository changes to provide contextual updates.
+        
+        EOF
+        else
+          cat > claude_pr_body.md << 'EOF'
         # 🤖 AI-Powered Documentation Sync
         
         This PR contains **Claude AI-generated documentation updates** based on intelligent analysis of the TopLocs ecosystem.
@@ -478,6 +511,7 @@ jobs:
         Claude analyzed the current documentation state and recent repository changes to provide contextual updates.
         
         EOF
+        fi
         
         # Add Claude's analysis summary
         if [ -f "update_summary.txt" ]; then
@@ -572,8 +606,16 @@ jobs:
         
         # Commit changes
         git add .
-        git commit -m "$(cat <<'EOF'
-        🤖 AI-powered documentation sync - ${{ github.run_id }}
+        
+        # Set commit message based on trigger type
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          COMMIT_PREFIX="🌙 Nightly AI-powered documentation sync"
+        else
+          COMMIT_PREFIX="🤖 AI-powered documentation sync"
+        fi
+        
+        git commit -m "$(cat <<EOF
+        $COMMIT_PREFIX - ${{ github.run_id }}
         
         Claude AI analyzed TopLocs repositories and applied intelligent documentation updates.
         
@@ -593,8 +635,14 @@ jobs:
         git push origin "$PR_BRANCH"
         
         # Create PR using GitHub CLI
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          PR_TITLE="🌙 Nightly AI-Powered Documentation Sync - ${{ github.run_id }}"
+        else
+          PR_TITLE="🤖 AI-Powered Documentation Sync - ${{ github.run_id }}"
+        fi
+        
         gh pr create \
-          --title "🤖 AI-Powered Documentation Sync - ${{ github.run_id }}" \
+          --title "$PR_TITLE" \
           --body-file claude_pr_body.md \
           --base main \
           --head "$PR_BRANCH"
@@ -616,5 +664,9 @@ jobs:
         
         if [ "$UPDATE_NEEDED" = "false" ]; then
           echo ""
-          echo "💡 Tip: Use 'force_update' option to create a PR even without recent repository changes"
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "💡 Nightly sync complete: No changes needed. Documentation stays current automatically."
+          else
+            echo "💡 Tip: Use 'force_update' option to create a PR even without recent repository changes"
+          fi
         fi
