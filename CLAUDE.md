@@ -152,6 +152,13 @@ cd [your-plugin] # Work on specific plugin
 - **Maintain AI context files** for optimal development assistance
 - **Simplified automation** with minimal GitHub Actions (docs deployment only)
 
+### Code Change Protocol
+- **Always update documentation** when making code changes
+- **Update README.md** to reflect new functionality or changes
+- **Update relevant docs/** files to keep documentation current
+- **Create pull requests** for all changes (never push directly to main)
+- **Commit with descriptive messages** explaining what changed and why
+
 ## 🚀 Getting Started Commands
 
 After AI setup, use these commands:
