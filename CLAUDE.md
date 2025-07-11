@@ -150,6 +150,15 @@ cd [your-plugin] # Work on specific plugin
 - **Keep docs synchronized** across repositories
 - **Update getting-started guides** with new repository additions
 - **Maintain AI context files** for optimal development assistance
+- **Simplified automation** with minimal GitHub Actions (docs deployment only)
+- **Manual sync workflow** for analyzing repository changes and creating update PRs
+
+### Code Change Protocol
+- **Always update documentation** when making code changes
+- **Update README.md** to reflect new functionality or changes
+- **Update relevant docs/** files to keep documentation current
+- **Create pull requests** for all changes (never push directly to main)
+- **Commit with descriptive messages** explaining what changed and why
 
 ## 🚀 Getting Started Commands
 
