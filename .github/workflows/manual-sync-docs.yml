@@ -29,6 +29,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
+        
+    - name: Install jq
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
 
     - name: Install GitHub CLI
       run: |
@@ -85,12 +90,12 @@ jobs:
             repo_name=$(basename "$repo")
             if [ ! -d "$repo_name" ]; then
               echo "  📥 Cloning $repo..."
-              git clone "https://github.com/$repo.git" "$repo_name"
+              gh repo clone "$repo" "$repo_name"
             else
               echo "  🔄 Updating $repo..."
               cd "$repo_name"
               git fetch origin
-              git reset --hard origin/HEAD
+              git reset --hard origin/main || git reset --hard origin/master
               cd ..
             fi
             
@@ -259,7 +264,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         commit-message: |
-          📚 Manual documentation sync - $(date +%Y-%m-%d)
+          📚 Manual documentation sync - ${{ github.run_id }}
           
           Repository analysis completed and documentation sync timestamps updated.
           
@@ -270,9 +275,9 @@ jobs:
           🤖 Generated with [Claude Code](https://claude.ai/code)
           
           Co-Authored-By: Claude <noreply@anthropic.com>
-        title: '📚 Manual Documentation Sync - $(date +%Y-%m-%d)'
+        title: '📚 Manual Documentation Sync - ${{ github.run_id }}'
         body-path: doc_update_summary.md
-        branch: docs-sync-$(date +%Y%m%d-%H%M%S)
+        branch: docs-sync-${{ github.run_id }}
         delete-branch: true
         labels: |
           documentation
