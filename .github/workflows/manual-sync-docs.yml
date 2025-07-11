@@ -1,0 +1,298 @@
+name: Documentation Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      repositories:
+        description: 'Comma-separated list of repositories to check (leave empty for all)'
+        required: false
+        default: ''
+      force_update:
+        description: 'Force update even if no significant changes detected'
+        type: boolean
+        default: false
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      
+    steps:
+    - name: Checkout workspace
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install GitHub CLI
+      run: |
+        gh --version || (
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update
+          sudo apt install gh
+        )
+
+    - name: Clone and analyze repositories
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        mkdir -p repos
+        cd repos
+        
+        # Define repositories to check
+        if [ -n "${{ inputs.repositories }}" ]; then
+          IFS=',' read -ra REPO_LIST <<< "${{ inputs.repositories }}"
+          repositories=()
+          for repo in "${REPO_LIST[@]}"; do
+            repositories+=("toplocs/$(echo $repo | xargs)")
+          done
+        else
+          repositories=(
+            "toplocs/tribelike"
+            "toplocs/locations"
+            "toplocs/event-plugin"
+            "toplocs/wiki-plugin"
+            "toplocs/location-plugin"
+            "toplocs/link-plugin"
+            "toplocs/demo-plugin"
+            "toplocs/plugin-dev-sdk"
+            "toplocs/tribelike.wiki"
+          )
+        fi
+        
+        # Create analysis file
+        echo "# Repository Analysis Report" > ../repo_analysis.md
+        echo "" >> ../repo_analysis.md
+        echo "**Analysis Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> ../repo_analysis.md
+        echo "**Trigger**: Manual sync requested" >> ../repo_analysis.md
+        echo "" >> ../repo_analysis.md
+        
+        # Track changes
+        has_changes=false
+        
+        for repo in "${repositories[@]}"; do
+          echo "🔍 Analyzing $repo..."
+          
+          if gh repo view "$repo" &> /dev/null; then
+            # Clone repository
+            repo_name=$(basename "$repo")
+            if [ ! -d "$repo_name" ]; then
+              echo "  📥 Cloning $repo..."
+              git clone "https://github.com/$repo.git" "$repo_name"
+            else
+              echo "  🔄 Updating $repo..."
+              cd "$repo_name"
+              git fetch origin
+              git reset --hard origin/HEAD
+              cd ..
+            fi
+            
+            cd "$repo_name"
+            
+            # Get repository information
+            echo "## $repo" >> ../../repo_analysis.md
+            echo "" >> ../../repo_analysis.md
+            
+            # Latest commit info
+            latest_commit=$(git log -1 --format="%H|%an|%ad|%s" --date=short)
+            IFS='|' read -ra COMMIT_INFO <<< "$latest_commit"
+            echo "- **Latest Commit**: ${COMMIT_INFO[0]:0:7} by ${COMMIT_INFO[1]} on ${COMMIT_INFO[2]}" >> ../../repo_analysis.md
+            echo "- **Message**: ${COMMIT_INFO[3]}" >> ../../repo_analysis.md
+            
+            # Check for recent activity (last 30 days)
+            recent_commits=$(git log --since="30 days ago" --oneline | wc -l)
+            echo "- **Recent Activity**: $recent_commits commits in last 30 days" >> ../../repo_analysis.md
+            
+            # Check for important files
+            if [ -f "README.md" ]; then
+              readme_size=$(wc -c < README.md)
+              echo "- **README**: $readme_size characters" >> ../../repo_analysis.md
+            fi
+            
+            if [ -f "package.json" ]; then
+              # Get package info
+              if command -v jq &> /dev/null; then
+                pkg_name=$(jq -r '.name // "unknown"' package.json)
+                pkg_version=$(jq -r '.version // "unknown"' package.json)
+                echo "- **Package**: $pkg_name@$pkg_version" >> ../../repo_analysis.md
+                
+                # Check for important scripts
+                scripts=$(jq -r '.scripts // {} | keys | join(", ")' package.json)
+                if [ -n "$scripts" ] && [ "$scripts" != "" ]; then
+                  echo "- **Scripts**: $scripts" >> ../../repo_analysis.md
+                fi
+              fi
+            fi
+            
+            # Check for documentation
+            if [ -d "docs" ]; then
+              doc_files=$(find docs -name "*.md" | wc -l)
+              echo "- **Documentation**: $doc_files markdown files in docs/" >> ../../repo_analysis.md
+            fi
+            
+            # Check if this repo has significant changes (commits in last 7 days)
+            if [ $recent_commits -gt 0 ]; then
+              has_changes=true
+              echo "- **Status**: 🔥 **Recent activity detected**" >> ../../repo_analysis.md
+            else
+              echo "- **Status**: ✅ Stable" >> ../../repo_analysis.md
+            fi
+            
+            echo "" >> ../../repo_analysis.md
+            cd ..
+          else
+            echo "  ❌ Repository $repo not accessible"
+            echo "## $repo" >> ../repo_analysis.md
+            echo "" >> ../repo_analysis.md
+            echo "- **Status**: ❌ **Not accessible**" >> ../repo_analysis.md
+            echo "" >> ../repo_analysis.md
+          fi
+        done
+        
+        # Set output for next steps
+        if [ "$has_changes" = true ] || [ "${{ inputs.force_update }}" = "true" ]; then
+          echo "UPDATE_NEEDED=true" >> $GITHUB_ENV
+          echo "🔄 Update needed: Recent activity detected or force update requested"
+        else
+          echo "UPDATE_NEEDED=false" >> $GITHUB_ENV
+          echo "✅ No significant changes detected"
+        fi
+
+    - name: Generate documentation updates
+      if: env.UPDATE_NEEDED == 'true'
+      run: |
+        echo "📝 Generating documentation updates..."
+        
+        # Create update summary for the PR
+        cat > doc_update_summary.md << 'EOF'
+        # 📋 Documentation Sync Summary
+        
+        This PR updates the workspace documentation based on analysis of TopLocs repositories.
+        
+        ## 🔍 Repository Analysis
+        
+        EOF
+        
+        # Add the analysis to the summary
+        cat repo_analysis.md >> doc_update_summary.md
+        
+        cat >> doc_update_summary.md << 'EOF'
+        
+        ## 📚 Recommended Updates
+        
+        Based on the analysis above, the following documentation updates are recommended:
+        
+        ### CLAUDE.md Updates
+        - [ ] Review repository list for accuracy
+        - [ ] Update development commands if package.json scripts changed
+        - [ ] Check for new architecture patterns or features
+        - [ ] Update plugin development guidance if plugins changed
+        
+        ### README.md Updates
+        - [ ] Update quick start instructions if setup changed
+        - [ ] Refresh repository descriptions
+        - [ ] Update feature lists if new capabilities added
+        
+        ### docs/ Updates
+        - [ ] Update getting-started guide for any new requirements
+        - [ ] Refresh architecture documentation if core platform changed
+        - [ ] Update plugin development docs if plugin patterns changed
+        - [ ] Check ecosystem documentation for new repositories
+        
+        ## 🤖 Next Steps
+        
+        1. Review the analysis above
+        2. Manually update the relevant documentation files
+        3. Test any updated setup instructions
+        4. Merge this PR to keep documentation current
+        
+        *This analysis was generated by the manual documentation sync workflow.*
+        EOF
+
+    - name: Create or update documentation files
+      if: env.UPDATE_NEEDED == 'true'
+      run: |
+        echo "📄 Creating documentation updates..."
+        
+        # Create a simple update to CLAUDE.md to trigger the PR
+        # Add a last-updated timestamp
+        current_date=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        
+        # Add or update last sync timestamp in CLAUDE.md
+        if grep -q "Last documentation sync:" CLAUDE.md; then
+          sed -i "s/Last documentation sync:.*/Last documentation sync: $current_date/" CLAUDE.md
+        else
+          echo "" >> CLAUDE.md
+          echo "---" >> CLAUDE.md
+          echo "" >> CLAUDE.md
+          echo "*Last documentation sync: $current_date*" >> CLAUDE.md
+        fi
+        
+        # Copy analysis to docs for reference
+        cp repo_analysis.md docs/analysis/latest-repo-analysis.md 2>/dev/null || {
+          mkdir -p docs/analysis
+          cp repo_analysis.md docs/analysis/latest-repo-analysis.md
+        }
+
+    - name: Check for changes
+      id: check-changes
+      run: |
+        git add .
+        if git diff --staged --quiet; then
+          echo "changes=false" >> $GITHUB_OUTPUT
+          echo "No changes to commit"
+        else
+          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "Changes detected"
+        fi
+
+    - name: Create Pull Request
+      if: steps.check-changes.outputs.changes == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: |
+          📚 Manual documentation sync - $(date +%Y-%m-%d)
+          
+          Repository analysis completed and documentation sync timestamps updated.
+          
+          - Analyzed TopLocs repositories for recent changes
+          - Updated documentation sync timestamp
+          - Generated repository analysis report
+          
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>
+        title: '📚 Manual Documentation Sync - $(date +%Y-%m-%d)'
+        body-path: doc_update_summary.md
+        branch: docs-sync-$(date +%Y%m%d-%H%M%S)
+        delete-branch: true
+        labels: |
+          documentation
+          sync
+          manual
+
+    - name: Output results
+      run: |
+        echo "📋 Analysis Results:"
+        cat repo_analysis.md
+        
+        if [ "${{ steps.check-changes.outputs.changes }}" = "true" ]; then
+          echo ""
+          echo "✅ Pull request created with documentation sync"
+        else
+          echo ""
+          echo "ℹ️ No changes needed - documentation is current"
+        fi
+        
+        if [ "$UPDATE_NEEDED" = "false" ]; then
+          echo ""
+          echo "💡 Tip: Use 'force_update' option to create a PR even without recent repository changes"
+        fi
