@@ -35,16 +35,41 @@ export default defineConfig({
 
 ### Plugin Integration Points
 
-1. **Main Content Area**: Full-page plugin components
-2. **Sidebar**: Navigation and quick access components  
-3. **Settings**: Configuration interfaces
-4. **Modal/Dialog**: Overlay interactions
+TopLocs uses an **Entity/Page/Slot** architecture:
+
+1. **Entities**: `Topic` or `Location` - the context where plugins operate
+2. **Pages**: `Info` or `Settings` - the page within an entity
+3. **Slots**: `Content` or `Sidebar` - the specific area on a page
+
+**Available Slots:**
+- `Topic/Info/Content` - Main content area for topic information
+- `Topic/Info/Sidebar` - Sidebar for topic-related tools
+- `Topic/Settings/Content` - Topic settings and configuration
+- `Topic/Settings/Sidebar` - Topic settings navigation
+- `Location/Info/Content` - Location information display
+- `Location/Info/Sidebar` - Location-specific tools
+- `Location/Settings/Content` - Location settings
+- `Location/Settings/Sidebar` - Location settings navigation
 
 ## Getting Started
 
-### 1. Use the Demo Plugin Template
+### 1. Use the Plugin Development SDK (Recommended)
 
-The `demo-plugin` repository serves as a template for new plugins:
+The TopLocs Plugin Development SDK provides a comprehensive development environment:
+
+```bash
+# Install the SDK
+npm install git+https://github.com/toplocs/plugin-dev-sdk.git
+
+# Or create a new plugin from scratch
+mkdir my-new-plugin && cd my-new-plugin
+npm init -y
+npm install git+https://github.com/toplocs/plugin-dev-sdk.git
+```
+
+### 2. Alternative: Use the Demo Plugin Template
+
+For advanced users or custom setups, the `demo-plugin` repository serves as a template:
 
 ```bash
 cd /path/to/toplocs
@@ -52,35 +77,82 @@ cp -r demo-plugin my-new-plugin
 cd my-new-plugin
 ```
 
-### 2. Plugin Structure
+### 3. Plugin Structure (SDK-based)
 
 ```
 my-plugin/
 ├── src/
-│   ├── components/
-│   │   ├── Main.vue          # Main plugin component
-│   │   ├── Settings.vue      # Plugin settings
-│   │   └── Sidebar.vue       # Sidebar component
+│   ├── views/
+│   │   ├── info/
+│   │   │   └── Sidebar.vue   # Info page sidebar
+│   │   └── settings/
+│   │       └── Content.vue   # Settings page content
+│   ├── components/           # Reusable components
 │   ├── composables/
 │   │   └── pluginProvider.ts # Plugin data management
-│   ├── App.vue
-│   └── main.ts
-├── server/                   # Optional backend
-│   ├── index.js
-│   └── api/
+│   └── index.ts              # Plugin configuration
+├── index.ts                  # Development entry point
+├── index.html                # Development HTML
 ├── package.json
 ├── vite.config.ts
-└── README.md
+└── tailwind.config.js
 ```
 
-### 3. Core Components
+### 4. Plugin Configuration
 
-#### Main.vue - Primary Plugin Interface
+#### Plugin Configuration File (src/index.ts)
+```typescript
+import type { BasePluginConfig } from '@toplocs/plugin-dev-sdk';
+
+const pluginConfig: BasePluginConfig = {
+  id: 'my_plugin',
+  name: 'My Plugin',
+  url: 'http://localhost:3006/assets/plugin.js',
+  version: '1.0.0',
+  description: 'Description of my plugin',
+  author: 'Your Name',
+  slots: [
+    { entity: 'Topic', page: 'Info', slot: 'Sidebar', component: 'Sidebar' },
+    { entity: 'Topic', page: 'Settings', slot: 'Content', component: 'Content' },
+    { entity: 'Location', page: 'Info', slot: 'Sidebar', component: 'Sidebar' },
+    { entity: 'Location', page: 'Settings', slot: 'Content', component: 'Content' }
+  ]
+};
+
+export default pluginConfig;
+```
+
+#### Development Entry Point (index.ts)
+```typescript
+import { createPluginDevelopmentEnvironment, type PluginDevConfig } from '@toplocs/plugin-dev-sdk';
+import '@toplocs/plugin-dev-sdk/style.css';
+
+// Import plugin configuration and components
+import pluginConfig from './src/index';
+import SidebarComponent from './src/views/info/Sidebar.vue';
+import ContentComponent from './src/views/settings/Content.vue';
+
+// Create development environment
+const devConfig: PluginDevConfig = {
+  pluginConfig,
+  components: {
+    Sidebar: SidebarComponent,
+    Content: ContentComponent
+  }
+};
+
+const app = createPluginDevelopmentEnvironment(devConfig);
+app.mount('#app');
+```
+
+### 5. Core Components
+
+#### Info Sidebar Component (src/views/info/Sidebar.vue)
 ```vue
 <template>
-  <div class="plugin-main">
-    <h1>{{ pluginName }}</h1>
-    <!-- Your plugin content -->
+  <div class="plugin-sidebar">
+    <h3>{{ pluginName }}</h3>
+    <!-- Info-specific sidebar content -->
   </div>
 </template>
 
@@ -100,7 +172,7 @@ onMounted(() => {
 </script>
 ```
 
-#### Settings.vue - Plugin Configuration
+#### Settings Content Component (src/views/settings/Content.vue)
 ```vue
 <template>
   <div class="plugin-settings">
@@ -299,13 +371,21 @@ describe('Plugin Main Component', () => {
 ```
 
 ### Integration Testing
-Use the demo-plugin framework for integration testing:
+Use the Plugin Development SDK for interactive testing:
 
 ```bash
-cd demo-plugin
-pnpm dev  # Start demo environment
-# Test plugin loading and functionality
+# Development mode with hot reload
+npm run dev
+
+# Preview mode to test federation
+npm run build && npm run preview
 ```
+
+The SDK provides:
+- **Entity/Page Selection**: Test components in different contexts
+- **Hot Reload**: Instant feedback during development
+- **Federation Testing**: Validate module federation loading
+- **Slot Validation**: Visual indicators for provided vs. missing slots
 
 ## Deployment
 
@@ -441,11 +521,31 @@ interface PluginMetadata {
 }
 ```
 
+## Development Workflow
+
+### Using the Plugin Development SDK
+
+1. **Setup**: Install the SDK and configure your plugin
+2. **Develop**: Use hot reload mode for rapid iteration
+3. **Test**: Switch to preview mode to test federation  
+4. **Integrate**: Test in actual TopLocs environment
+5. **Deploy**: Build and deploy your plugin
+
+### SDK Features
+
+- **🎯 Interactive Development Environment**: Entity/page selection with live component testing
+- **⚡ Hot Reload**: Real-time development with instant updates
+- **🧩 Module Federation**: Test federated plugin loading and component isolation
+- **🎨 Tailwind CSS**: Pre-configured styling with full design system
+- **📱 Responsive Design**: Mobile-first development environment
+- **🔧 TypeScript**: Full type safety and IntelliSense support
+
 ## Support and Community
 
-- Use the `demo-plugin` repository for examples
-- Check existing plugins for patterns and best practices
-- Contribute to the plugin ecosystem by sharing your plugins
-- Follow the established coding standards and conventions
+- **Primary**: Use the [Plugin Development SDK](https://github.com/toplocs/plugin-dev-sdk) for new plugins
+- **Reference**: Check the `demo-plugin` repository for advanced patterns
+- **Examples**: See the [link-plugin](https://github.com/toplocs/link-plugin) for a complete SDK example
+- **Documentation**: Visit [TopLocs Documentation](https://toplocs.github.io/toplocs-workspace/)
+- **Community**: Contribute to the plugin ecosystem by sharing your plugins
 
-This guide provides the foundation for developing plugins for the TopLocs platform. Remember that plugins are powerful tools that extend the platform's capabilities while maintaining the decentralized, user-owned data principles of the system.
+This guide provides the foundation for developing plugins for the TopLocs platform using the modern SDK approach. The Plugin Development SDK simplifies the development process while maintaining the decentralized, user-owned data principles of the system.

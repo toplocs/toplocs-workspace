@@ -37,7 +37,8 @@ toplocs/ (this workspace repository)
 ├── wiki-plugin/        # Wiki plugin
 ├── location-plugin/    # Location plugin
 ├── link-plugin/        # Link sharing plugin
-├── demo-plugin/        # Plugin development framework
+├── demo-plugin/        # Plugin development template
+├── plugin-dev-sdk/     # 🚀 Plugin Development SDK
 └── tribelike.wiki/     # Project wiki
 ```
 
@@ -75,7 +76,7 @@ TopLocs is a **decentralized P2P community platform** built on Gun.js:
 ### Repository Categories
 - **🏛️ Core**: tribelike (main platform), locations (mobile)
 - **🔌 Plugins**: All `*-plugin` repositories
-- **🛠️ Tools**: demo-plugin (development framework)
+- **🛠️ Tools**: plugin-dev-sdk (development SDK), demo-plugin (template)
 
 ## 📚 Documentation Strategy
 
@@ -115,7 +116,11 @@ pnpm dev
 
 ### Scenario 2: Plugin Development
 ```bash
-# Claude understands ecosystem, helps with plugin patterns
+# Modern approach with Plugin Development SDK
+npm install git+https://github.com/toplocs/plugin-dev-sdk.git
+# Set up your plugin with SDK
+
+# Alternative: Use demo-plugin as template
 cd demo-plugin  # Use as template
 cd [your-plugin] # Work on specific plugin
 ```
