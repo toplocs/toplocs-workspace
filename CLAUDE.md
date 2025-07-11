@@ -151,6 +151,7 @@ cd [your-plugin] # Work on specific plugin
 - **Update getting-started guides** with new repository additions
 - **Maintain AI context files** for optimal development assistance
 - **Simplified automation** with minimal GitHub Actions (docs deployment only)
+- **Manual sync workflow** for analyzing repository changes and creating update PRs
 
 ### Code Change Protocol
 - **Always update documentation** when making code changes

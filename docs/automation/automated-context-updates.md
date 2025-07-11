@@ -17,11 +17,13 @@ graph TD
     A[Push to Main Branch] --> B[Deploy Docs Workflow]
     B --> C[GitHub Pages Deployment]
     
-    D[Repository Changes] --> E[Optional: Manual Notification]
-    E --> F[Manual Context Updates]
+    D[Manual Trigger] --> E[Manual Documentation Sync]
+    E --> F[Analyze All Repositories]
+    F --> G[Generate Analysis Report]
+    G --> H[Create PR with Recommendations]
     
-    G[Template Available] --> H[notify-workspace-template.yml]
-    H --> I[Can be copied to other repos if needed]
+    I[Template Available] --> J[notify-workspace-template.yml]
+    J --> K[Can be copied to other repos if needed]
 ```
 
 ## 📋 Workflow Components
@@ -40,7 +42,28 @@ graph TD
 
 **Status**: ✅ **Working reliably**
 
-### 2. Repository Notification Template (`notify-workspace-template.yml`)
+### 2. Manual Documentation Sync (`manual-sync-docs.yml`)
+
+**Location**: `.github/workflows/manual-sync-docs.yml` in workspace  
+**Trigger**: Manual workflow dispatch  
+**Purpose**: Analyze TopLocs repositories and create PR with documentation updates
+
+**Key features**:
+- Analyzes all TopLocs repositories for recent changes
+- Generates comprehensive repository analysis report
+- Creates PR with update recommendations when changes detected
+- Supports custom repository list and force update options
+
+**Usage**:
+1. Go to GitHub Actions tab in the workspace repository
+2. Select "Manual Documentation Sync" workflow
+3. Click "Run workflow" 
+4. Optionally specify repositories or force update
+5. Review the generated PR with analysis and recommendations
+
+**Status**: ✅ **Manual control with intelligent analysis**
+
+### 3. Repository Notification Template (`notify-workspace-template.yml`)
 
 **Location**: `.github/workflows/notify-workspace-template.yml` in workspace  
 **Purpose**: Template for other repositories to notify workspace of changes  
@@ -57,7 +80,7 @@ The following workflows were removed to improve reliability:
 - ❌ `periodic-validation.yml` - Overly complex validation logic
 - ❌ `notify-repositories.yml` - Complex setup that wasn't needed
 
-**Result**: From 6 workflows to 2 working ones = **83% reduction in complexity**
+**Result**: From 6 workflows to 3 focused ones = **50% reduction in complexity**
 
 ## 🔧 Setup and Configuration
 
@@ -68,6 +91,15 @@ The documentation deployment is **automatic** and requires no setup:
 1. **GitHub Pages**: Already configured to deploy from GitHub Actions
 2. **Repository permissions**: Automatically granted to `GITHUB_TOKEN`
 3. **Docusaurus build**: Handled by the workflow
+
+### Manual Documentation Sync Setup
+
+The manual sync workflow requires no setup - it's ready to use:
+
+1. **Repository access**: Uses `GITHUB_TOKEN` for repository analysis
+2. **No secrets needed**: Works with built-in GitHub permissions
+3. **Flexible options**: Can analyze specific repositories or all repositories
+4. **Force update**: Can create PRs even without recent changes
 
 ### Optional Repository Notifications
 
