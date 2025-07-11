@@ -1,171 +1,74 @@
-# TopLocs Documentation
+# TopLocs Project Documentation
 
-Welcome to the TopLocs ecosystem documentation. This directory contains comprehensive guides for developers working with the TopLocs decentralized community platform.
+This directory contains **project-level documentation** for understanding, setting up, and working with the TopLocs ecosystem.
 
-## 📚 Documentation Overview
+## 📚 What's Here
 
-### Core Documentation
-- **[Getting Started](./getting-started.md)** - Complete setup guide for new developers and Claude Code context
-- **[Ecosystem Overview](./ecosystem.md)** - Complete overview of all TopLocs repositories and relationships
-- **[Architecture](./architecture.md)** - Complete P2P architecture overview, Gun.js integration, and data structures
-- **[Plugin Development](./plugin-development.md)** - Comprehensive guide for creating plugins with Module Federation
+### 🎯 Understanding TopLocs
+- **[Architecture](./architecture.md)** - Complete P2P architecture, Gun.js integration, and data structures
+- **[Ecosystem Overview](./ecosystem.md)** - All TopLocs repositories and their relationships
+- **[Getting Started](./getting-started.md)** - Quick overview and orientation for new developers
 
-### Development Tools
-- **[Debug Guide](./debug-guide.md)** - Browser console commands and debugging techniques
-- **[Debug Tools](./debug-tools.md)** - Implementation guide for debug tools and monitoring
+### 🚀 Setup & Workspace
+- **[Workspace Setup](./workspace-setup.md)** - Complete setup guide for the TopLocs workspace ecosystem
+- **[AI Setup Guide](./ai-setup-guide.md)** - How AI automation orchestrates multi-repository environments
+- **[Workspace Overview](./workspace-overview.md)** - Understanding the workspace concept and structure
 
-## 🏗️ Architecture Quick Reference
+### 🤖 Automation & AI
+- **[Automation](./automation.md)** - GitHub Actions system for automated context updates
 
-TopLocs is built on a **peer-to-peer architecture** using Gun.js:
+## 🤔 What is the "Workspace"?
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│     Browser     │    │     Browser     │    │     Browser     │
-│   (Vue.js App) │◄──►│   (Vue.js App) │◄──►│   (Vue.js App) │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         ▲                       ▲                       ▲
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 ▼
-                      ┌─────────────────┐
-                      │   Gun.js Relay  │
-                      │  (Minimal Server)│
-                      └─────────────────┘
-```
+The TopLocs **workspace** is a meta-repository that:
+- **Orchestrates** the entire ecosystem of 10+ repositories
+- **Provides AI context** for development across all repositories
+- **Automates setup** of complex multi-repository environments
+- **Centralizes documentation** while maintaining individual repository docs
 
-### Key Principles
-- **No Central Authority**: No single server controls the data
-- **User-Owned Data**: Users control their data through cryptographic keys
-- **Offline-First**: Works without internet connectivity
-- **Real-Time Sync**: Changes propagate instantly between connected peers
+Think of it as the "mission control" for the entire TopLocs ecosystem.
 
-## 🔌 Plugin System
-
-Plugins extend functionality using Module Federation:
-
-```typescript
-// Plugin configuration
-federation({
-  name: 'your-plugin',
-  filename: 'plugin.js',
-  exposes: {
-    './Main': './src/components/Main.vue',
-    './Settings': './src/components/Settings.vue'
-  },
-  shared: ['vue', 'tailwindcss']
-})
-```
-
-### Available Plugins
-- **event-plugin** - Real-time chat & event management
-- **wiki-plugin** - Knowledge sharing & documentation
-- **location-plugin** - Location management & mapping
-- **link-plugin** - Link sharing & bookmarking
-
-### Plugin Development
-Use the **demo-plugin** repository as a template for creating new plugins.
-
-## 🛠️ Development Workflow
-
-### Quick Start
-```bash
-# Clone and setup
-git clone https://github.com/toplocs/tribelike.git
-cd tribelike
-pnpm install
-
-# Start development
-pnpm dev
-```
-
-### Common Commands
-```bash
-pnpm dev          # Start development environment
-pnpm build        # Build all workspaces
-pnpm test         # Run tests
-pnpm lint         # Lint code
-pnpm check        # Type checking
-```
-
-## 🗄️ Data Structure
-
-### Gun.js Namespaces
-```javascript
-gun.get('credentials').get(email)         // Authentication
-gun.get('profile/{id}')                   // User profiles
-gun.get('location/{id}')                  // Geographic locations
-gun.get('topic/{id}/{space}')            // Topics (local/global)
-gun.get('sphere/{id}/{space}')           // Community spheres
-gun.get('relations/{from}/{type}/{to}')  // Universal relations
-gun.get('plugins')                        // Plugin registry
-```
-
-### Relationship Types
-- **Profile-Interest**: `favorite`, `doing`, `expert`, `learning`, `curious`
-- **Profile-Location**: `living`, `working`, `traveling`, `visiting`, `current`
-- **Profile-Profile**: `following`, `friend`, `family`, `partner`
-
-## 🔍 Debugging
-
-### Browser Console Commands
-```javascript
-gunDebug.graph()        // Show complete local graph
-gunDebug.peers()        // Show connected peers
-gunDebug.user()         // Show current user
-gunDebug.watch('path')  // Monitor specific path
-gunDebug.storage()      // Show Gun data in localStorage
-gunDebug.clear()        // Clear all Gun data
-```
-
-### Debug Tools
-- **Vue DevTools** - Component state inspection
-- **Eruda** - Mobile-style console and network inspection
-- **Gun Logger** - Custom Gun.js event logging
-- **Performance Monitor** - Graph size and memory usage
-
-## 📖 Additional Resources
-
-### External Documentation
-- [Gun.js Documentation](https://gun.eco/docs/) - Core P2P database
-- [Vue.js Guide](https://vuejs.org/guide/) - Frontend framework
-- [WebAuthn Guide](https://webauthn.guide/) - Modern authentication
-- [Module Federation](https://module-federation.github.io/) - Plugin system
-
-### Repository Structure
-For a complete overview of all TopLocs repositories, see [ecosystem.md](./ecosystem.md).
+## 📁 Documentation Structure
 
 ```
-toplocs/ (workspace)
-├── tribelike/           # Core platform (THIS REPOSITORY)
-├── locations/           # Mobile app
-├── *-plugin/           # Plugin repositories
-├── gun-*/              # Gun.js proof of concepts
-├── demo-plugin/        # Plugin development template
-└── project-playground/ # Architecture testing
+docs/
+├── project/           # Project understanding & setup (THIS DIRECTORY)
+│   ├── architecture.md         # P2P architecture & design
+│   ├── ecosystem.md           # Repository relationships
+│   ├── getting-started.md     # Quick orientation
+│   ├── workspace-setup.md     # Complete setup guide
+│   ├── ai-setup-guide.md      # AI automation explained
+│   ├── workspace-overview.md  # Workspace concept
+│   └── automation.md         # GitHub Actions automation
+└── development/       # Technical development guides
+    ├── plugin-development.md  # Creating plugins
+    ├── gundb-guide.md        # GunDB data modeling
+    ├── debug-guide.md        # Debugging techniques
+    └── debug-tools.md        # Debug tools implementation
 ```
 
-## 🤝 Contributing
+## 🎯 Quick Navigation
 
-1. **Read the Architecture Guide** - Understand the P2P principles
-2. **Try Plugin Development** - Start with the demo-plugin template
-3. **Use Debug Tools** - Familiarize yourself with debugging techniques
-4. **Follow the Patterns** - Study existing code and maintain consistency
+### I'm New to TopLocs
+1. **[Getting Started](./getting-started.md)** - Get oriented
+2. **[Architecture](./architecture.md)** - Understand the P2P design
+3. **[Workspace Setup](./workspace-setup.md)** - Set up your environment
 
-### Development Tips
-- Use Gun.js for all data persistence
-- Follow the universal relations system
-- Test with multiple browser tabs for P2P features
-- Maintain offline-first functionality
+### I Want to Develop
+1. **[Ecosystem Overview](./ecosystem.md)** - Understand the repositories
+2. **[Workspace Setup](./workspace-setup.md)** - Set up the complete environment
+3. **[Development Guides](../development/)** - Technical implementation guides
 
-## 🆘 Getting Help
+### I Want to Understand the Automation
+1. **[AI Setup Guide](./ai-setup-guide.md)** - How AI orchestrates setup
+2. **[Automation](./automation.md)** - GitHub Actions automation system
+3. **[Workspace Overview](./workspace-overview.md)** - Workspace concept in depth
 
-- **Architecture Questions**: See [architecture.md](./architecture.md)
-- **Plugin Development**: See [plugin-development.md](./plugin-development.md)
-- **Debugging Issues**: See [debug-guide.md](./debug-guide.md)
-- **Technical Setup**: See [debug-tools.md](./debug-tools.md)
+## 🔗 Cross-References
 
-For additional help, check the [GitHub issues](https://github.com/toplocs/tribelike/issues) or start a discussion.
+- **Development guides**: See [../development/](../development/) for technical implementation
+- **Code examples**: Most repositories have their own README and documentation
+- **Live documentation**: https://toplocs.github.io/toplocs-workspace/
 
 ---
 
-*This documentation covers the core TopLocs ecosystem. For specific repository documentation, check the individual README files in each project.*
+*This directory focuses on project understanding and setup. For technical development guides, see [../development/](../development/).*
