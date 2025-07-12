@@ -1,15 +1,12 @@
 name: "📰 Weekly Blog Generator"
 
 on:
-  # Run automatically every Saturday at 9 AM UTC
   schedule:
     - cron: '0 9 * * 6'
-  
-  # Allow manual triggering with options
   workflow_dispatch:
     inputs:
       week_override:
-        description: 'Override week period (YYYY-MM-DD to YYYY-MM-DD, leave empty for last 7 days)'
+        description: 'Override week period (YYYY-MM-DD to YYYY-MM-DD)'
         required: false
         default: ''
       force_publish:
@@ -23,8 +20,6 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      issues: write
-      repository-projects: write
       
     steps:
     - name: Checkout workspace
@@ -47,73 +42,49 @@ jobs:
         )
 
     - name: Calculate week period
-      id: week-period
       run: |
         if [ -n "${{ inputs.week_override }}" ]; then
-          # Parse manual week override
           echo "WEEK_START=$(echo '${{ inputs.week_override }}' | cut -d' ' -f1)" >> $GITHUB_ENV
           echo "WEEK_END=$(echo '${{ inputs.week_override }}' | cut -d' ' -f3)" >> $GITHUB_ENV
-          echo "week_override=true" >> $GITHUB_OUTPUT
         else
-          # Calculate last 7 days (Saturday to Friday)
           WEEK_END=$(date -u +%Y-%m-%d)
           WEEK_START=$(date -u -d '7 days ago' +%Y-%m-%d)
           echo "WEEK_START=$WEEK_START" >> $GITHUB_ENV
           echo "WEEK_END=$WEEK_END" >> $GITHUB_ENV
-          echo "week_override=false" >> $GITHUB_OUTPUT
         fi
-        
         echo "📅 Analyzing week: $WEEK_START to $WEEK_END"
 
     - name: Analyze ecosystem activity
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo "🔍 Analyzing TopLocs ecosystem activity for the week..."
+        echo "🔍 Analyzing TopLocs ecosystem activity..."
         
-        # Define all TopLocs repositories
         repositories=(
           "toplocs/toplocs-workspace"
           "toplocs/tribelike"
           "toplocs/locations"
-          "toplocs/event-plugin"
+          "toplocs/plugin-dev-sdk"
+          "toplocs/link-plugin"
           "toplocs/wiki-plugin"
           "toplocs/location-plugin"
-          "toplocs/link-plugin"
           "toplocs/demo-plugin"
-          "toplocs/plugin-dev-sdk"
+          "toplocs/event-plugin"
           "toplocs/chat-plugin"
-          "toplocs/gun-sign"
-          "toplocs/decentral-auth"
-          "toplocs/gun-playground"
-          "toplocs/project-playground"
-          "toplocs/opendata-import"
         )
         
-        # Initialize counters and data
         total_commits=0
         total_prs=0
-        total_contributors=0
-        declare -A contributors
-        declare -A repo_activity
-        repo_details=""
-        contributor_details=""
         
         echo "## 📊 Weekly Activity Analysis" > weekly_analysis.md
-        echo "" >> weekly_analysis.md
-        echo "**Analysis Period:** $WEEK_START to $WEEK_END" >> weekly_analysis.md
+        echo "**Period:** $WEEK_START to $WEEK_END" >> weekly_analysis.md
         echo "" >> weekly_analysis.md
         
-        # Analyze each repository
         for repo in "${repositories[@]}"; do
           if gh repo view "$repo" &> /dev/null; then
-            echo "Analyzing $repo..."
-            
-            # Get commits for the week
             commits_json=$(gh api "repos/$repo/commits?since=${WEEK_START}T00:00:00Z&until=${WEEK_END}T23:59:59Z" 2>/dev/null || echo "[]")
             commit_count=$(echo "$commits_json" | jq length 2>/dev/null || echo "0")
             
-            # Get PRs for the week  
             prs_json=$(gh api "repos/$repo/pulls?state=all&sort=updated&direction=desc" --jq "map(select(.updated_at >= \"${WEEK_START}T00:00:00Z\" and .updated_at <= \"${WEEK_END}T23:59:59Z\"))" 2>/dev/null || echo "[]")
             pr_count=$(echo "$prs_json" | jq length 2>/dev/null || echo "0")
             
@@ -121,168 +92,70 @@ jobs:
               total_commits=$((total_commits + commit_count))
               total_prs=$((total_prs + pr_count))
               
-              # Extract contributor information
-              echo "$commits_json" | jq -r '.[].author.login // .[].commit.author.name' 2>/dev/null | while read contributor; do
-                if [ -n "$contributor" ] && [ "$contributor" != "null" ]; then
-                  contributors["$contributor"]=1
-                fi
-              done
-              
-              # Get detailed commit messages for analysis
-              commit_messages=$(echo "$commits_json" | jq -r '.[].commit.message' 2>/dev/null | head -10)
-              
-              # Get PR details
-              pr_titles=$(echo "$prs_json" | jq -r '.[].title' 2>/dev/null | head -5)
-              
-              # Store repository activity
-              repo_activity["$repo"]="$commit_count commits, $pr_count PRs"
-              
-              # Add to detailed analysis
               echo "### $repo" >> weekly_analysis.md
-              echo "- **Commits:** $commit_count" >> weekly_analysis.md
-              echo "- **Pull Requests:** $pr_count" >> weekly_analysis.md
-              
-              if [ -n "$commit_messages" ]; then
-                echo "- **Recent Changes:**" >> weekly_analysis.md
-                echo "$commit_messages" | head -3 | sed 's/^/  - /' >> weekly_analysis.md
-              fi
-              
-              if [ -n "$pr_titles" ]; then
-                echo "- **Pull Requests:**" >> weekly_analysis.md
-                echo "$pr_titles" | head -3 | sed 's/^/  - /' >> weekly_analysis.md
-              fi
-              
+              echo "- Commits: $commit_count" >> weekly_analysis.md
+              echo "- PRs: $pr_count" >> weekly_analysis.md
               echo "" >> weekly_analysis.md
             fi
           fi
         done
         
-        # Get unique contributors
-        unique_contributors=$(gh api "repos/toplocs/toplocs-workspace/commits?since=${WEEK_START}T00:00:00Z&until=${WEEK_END}T23:59:59Z" \
-          --jq 'map(.author.login // .commit.author.name) | unique | length' 2>/dev/null || echo "0")
+        contributors=$(gh api "repos/toplocs/tribelike/commits?since=${WEEK_START}T00:00:00Z&until=${WEEK_END}T23:59:59Z" \
+          --jq 'map(.author.login // .commit.author.name) | unique | join(", ")' 2>/dev/null || echo "toplocs-team")
         
-        # Get all organization members for context
-        org_contributors=$(gh api "repos/toplocs/tribelike/commits?since=${WEEK_START}T00:00:00Z&until=${WEEK_END}T23:59:59Z" \
-          --jq 'map(.author.login // .commit.author.name) | unique | join(", ")' 2>/dev/null || echo "")
-        
-        # Store summary statistics
         echo "TOTAL_COMMITS=$total_commits" >> $GITHUB_ENV
         echo "TOTAL_PRS=$total_prs" >> $GITHUB_ENV
-        echo "CONTRIBUTORS=$org_contributors" >> $GITHUB_ENV
+        echo "CONTRIBUTORS=$contributors" >> $GITHUB_ENV
         
-        # Add summary to analysis
-        echo "## 📈 Week Summary" >> weekly_analysis.md
-        echo "- **Total Commits:** $total_commits" >> weekly_analysis.md
-        echo "- **Total Pull Requests:** $total_prs" >> weekly_analysis.md
-        echo "- **Active Contributors:** $org_contributors" >> weekly_analysis.md
-        echo "" >> weekly_analysis.md
+        echo "## Summary" >> weekly_analysis.md
+        echo "- Total Commits: $total_commits" >> weekly_analysis.md
+        echo "- Total PRs: $total_prs" >> weekly_analysis.md
+        echo "- Contributors: $contributors" >> weekly_analysis.md
         
-        # Determine if we have enough activity for a blog post
         if [ "$total_commits" -gt 5 ] || [ "$total_prs" -gt 2 ] || [ "${{ inputs.force_publish }}" = "true" ]; then
           echo "ACTIVITY_THRESHOLD=true" >> $GITHUB_ENV
-          echo "✅ Sufficient activity detected for blog post generation"
+          echo "✅ Sufficient activity for blog post"
         else
           echo "ACTIVITY_THRESHOLD=false" >> $GITHUB_ENV
-          echo "ℹ️ Low activity week - consider manual override"
+          echo "ℹ️ Low activity week"
         fi
 
-    - name: Generate weekly blog post
+    - name: Generate blog post
       if: env.ACTIVITY_THRESHOLD == 'true'
       env:
         ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       run: |
-        echo "🤖 Generating weekly blog post with Claude AI..."
+        echo "🤖 Generating blog post with Claude AI..."
         
-        # Get current date for blog post
         BLOG_DATE=$(date -u +%Y-%m-%d)
         BLOG_SLUG="weekly-update-$(date -u +%Y-%m-%d)"
         
-        # Create comprehensive prompt for Claude
-        cat > blog_prompt.txt << 'EOF'
-        You are the technical communications lead for TopLocs, a decentralized P2P community platform. Write a comprehensive weekly development blog post based on the activity analysis below. 
-
-        **BLOG POST REQUIREMENTS:**
-        1. **Title:** Create an engaging, descriptive title that captures the week's highlights
-        2. **Structure:** Follow this format:
-           - Brief introduction summarizing the week
-           - Major feature releases/updates (if any)
-           - Plugin ecosystem updates
-           - Infrastructure & DevOps improvements
-           - Technical learnings and insights
-           - Contributor highlights with specific praise
-           - Looking ahead section
-           - Community impact summary
-        3. **Tone:** Technical but accessible, positive and appreciative
-        4. **Length:** 800-1200 words
-        5. **Contributors:** Highlight individual contributors with specific praise for their work
-        6. **Technical depth:** Include technical details, code impact, and architectural insights
-        7. **Metrics:** Include concrete numbers (lines of code, PRs, commits, etc.)
-
-        **WEEK ANALYSIS:**
-        EOF
-        
-        # Add the week analysis
-        cat weekly_analysis.md >> blog_prompt.txt
-        
-        cat >> blog_prompt.txt << 'EOF'
-        
-        **CURRENT ECOSYSTEM CONTEXT:**
-        TopLocs is built on:
-        - Vue.js 3 + TypeScript for frontend
-        - Gun.js for P2P decentralized data
-        - Module Federation for plugins
-        - Ionic for mobile app
-        - Docusaurus for documentation
-        
-        **OUTPUT FORMAT:**
-        Return ONLY the blog post content in this exact format:
-        
-        BLOG_TITLE: [Your compelling title here]
-        BLOG_CONTENT: 
-        # [Title]
-        
-        *Week of [date range]*
-        
-        [Your complete blog post content in markdown format, ready for Docusaurus blog]
-        
-        Focus on celebrating achievements, technical progress, and community contributions. Make it informative and inspiring!
-        EOF
-        
-        # Prepare API request payload
-        # Escape the blog prompt content for JSON
-        escaped_content=$(cat blog_prompt.txt | jq -Rs .)
-        
-        # Create JSON payload
-        cat > api_payload.json << EOF
-{
-  "model": "claude-3-5-sonnet-20241022",
-  "max_tokens": 4000,
-  "messages": [
-    {
-      "role": "user",
-      "content": $escaped_content
-    }
-  ]
-}
-EOF
+        # Create prompt for Claude
+        echo "You are writing a TopLocs weekly development blog post. Based on the activity below, write a comprehensive 800-1200 word blog post celebrating achievements and technical progress." > prompt.txt
+        echo "" >> prompt.txt
+        echo "Return in this format:" >> prompt.txt
+        echo "BLOG_TITLE: [compelling title]" >> prompt.txt
+        echo "BLOG_CONTENT:" >> prompt.txt
+        echo "[markdown content for Docusaurus blog]" >> prompt.txt
+        echo "" >> prompt.txt
+        cat weekly_analysis.md >> prompt.txt
         
         # Call Claude API
+        echo '{"model":"claude-3-5-sonnet-20241022","max_tokens":4000,"messages":[{"role":"user","content":""}]}' > payload.json
+        jq --arg content "$(cat prompt.txt)" '.messages[0].content = $content' payload.json > final_payload.json
+        
         response=$(curl -s -X POST "https://api.anthropic.com/v1/messages" \
           -H "Content-Type: application/json" \
           -H "x-api-version: 2023-06-01" \
           -H "Authorization: Bearer $ANTHROPIC_API_KEY" \
-          -d @api_payload.json)
+          -d @final_payload.json)
         
-        echo "$response" > claude_response.json
-        
-        # Extract Claude's response
         claude_content=$(echo "$response" | jq -r '.content[0].text' 2>/dev/null || echo "")
         
         if [ -n "$claude_content" ] && [ "$claude_content" != "null" ]; then
-          echo "✅ Claude generated blog post successfully"
-          echo "$claude_content" > raw_blog_content.txt
+          echo "✅ Blog post generated"
+          echo "$claude_content" > blog_response.txt
           
-          # Extract title and content
           blog_title=$(echo "$claude_content" | grep "BLOG_TITLE:" | sed 's/BLOG_TITLE: //')
           blog_content=$(echo "$claude_content" | sed '/BLOG_CONTENT:/,$!d' | sed '1d')
           
@@ -291,154 +164,90 @@ EOF
           echo "BLOG_DATE=$BLOG_DATE" >> $GITHUB_ENV
           echo "BLOG_SLUG=$BLOG_SLUG" >> $GITHUB_ENV
           
-          # Save blog content
           echo "$blog_content" > blog_content.md
         else
           echo "❌ Failed to generate blog post"
           echo "BLOG_GENERATED=false" >> $GITHUB_ENV
         fi
 
-    - name: Create blog post file
+    - name: Create blog file
       if: env.BLOG_GENERATED == 'true'
       run: |
-        echo "📝 Creating Docusaurus blog post file..."
+        echo "📝 Creating blog file..."
         
-        # Create blog directory if it doesn't exist
         mkdir -p docusaurus/blog
-        
-        # Create blog filename
         BLOG_FILE="docusaurus/blog/${BLOG_DATE}-${BLOG_SLUG}.md"
         
-        # Extract contributors for authors field
+        # Create authors YAML
         if [ -n "$CONTRIBUTORS" ] && [ "$CONTRIBUTORS" != "" ]; then
-          # Convert comma-separated list to YAML array format
           authors_yaml=$(echo "$CONTRIBUTORS" | sed 's/, */\n  - /g' | sed '1s/^/  - /')
         else
           authors_yaml="  - toplocs-team"
         fi
         
-        # Create frontmatter and blog post
-        cat > "$BLOG_FILE" << EOF
----
-slug: ${BLOG_SLUG}
-title: ${BLOG_TITLE}
-authors:
-${authors_yaml}
-tags: [weekly-update, development, ecosystem, p2p, gun-js]
-date: ${BLOG_DATE}T09:00
----
-
-EOF
-        
-        # Add the blog content
+        # Create blog post
+        echo "---" > "$BLOG_FILE"
+        echo "slug: ${BLOG_SLUG}" >> "$BLOG_FILE"
+        echo "title: ${BLOG_TITLE}" >> "$BLOG_FILE"
+        echo "authors:" >> "$BLOG_FILE"
+        echo "${authors_yaml}" >> "$BLOG_FILE"
+        echo "tags: [weekly-update, development, ecosystem]" >> "$BLOG_FILE"
+        echo "date: ${BLOG_DATE}T09:00" >> "$BLOG_FILE"
+        echo "---" >> "$BLOG_FILE"
+        echo "" >> "$BLOG_FILE"
         cat blog_content.md >> "$BLOG_FILE"
         
         echo "BLOG_FILE=$BLOG_FILE" >> $GITHUB_ENV
-        echo "✅ Blog post file created: $BLOG_FILE"
 
-    - name: Clean up temporary files
-      if: always()
-      run: |
-        # Remove temporary files
-        rm -f blog_prompt.txt claude_response.json raw_blog_content.txt blog_content.md weekly_analysis.md api_payload.json
-
-    - name: Check for changes and create PR
+    - name: Create PR
       if: env.BLOG_GENERATED == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # Configure git
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         
-        # Check if blog file was created
-        if [ ! -f "$BLOG_FILE" ]; then
-          echo "❌ Blog file not found"
-          exit 1
-        fi
-        
-        # Create PR branch
         PR_BRANCH="weekly-blog-$(date -u +%Y-%m-%d)"
         git checkout -b "$PR_BRANCH"
         
-        # Add the blog file
         git add "$BLOG_FILE"
         
-        # Check if there are changes
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-          exit 0
+        if ! git diff --staged --quiet; then
+          echo "# 📰 Weekly Blog Post" > pr_body.md
+          echo "" >> pr_body.md
+          echo "**Period:** $WEEK_START to $WEEK_END" >> pr_body.md
+          echo "**Activity:** $TOTAL_COMMITS commits, $TOTAL_PRS PRs" >> pr_body.md
+          echo "**Contributors:** $CONTRIBUTORS" >> pr_body.md
+          echo "" >> pr_body.md
+          echo "Automatically generated weekly development blog post." >> pr_body.md
+          
+          git commit -m "📰 Add weekly blog post: $BLOG_TITLE" \
+            -m "🤖 Generated with Claude Code" \
+            -m "Co-Authored-By: Claude <noreply@anthropic.com>"
+          
+          git push origin "$PR_BRANCH"
+          
+          gh pr create \
+            --title "📰 Weekly Blog: $BLOG_TITLE" \
+            --body-file pr_body.md \
+            --base main \
+            --head "$PR_BRANCH"
+          
+          echo "✅ PR created successfully"
         fi
-        
-        # Create PR body
-        cat > pr_body.md << EOF
-# 📰 Weekly Development Blog Post
 
-## Summary
-Automated weekly blog post for the period **$WEEK_START** to **$WEEK_END**.
-
-## 📊 Week Highlights
-- **Total Commits:** $TOTAL_COMMITS
-- **Total Pull Requests:** $TOTAL_PRS
-- **Active Contributors:** $CONTRIBUTORS
-
-## 📝 Blog Post Details
-- **Title:** $BLOG_TITLE
-- **Date:** $BLOG_DATE
-- **File:** \`$BLOG_FILE\`
-
-## 🤖 Generation Process
-This blog post was automatically generated by Claude AI based on:
-- Repository activity analysis across the TopLocs ecosystem
-- Commit messages and PR descriptions from the past week
-- Contributor activity and impact assessment
-- Technical achievements and infrastructure updates
-
-## ✅ Ready for Review
-The blog post includes:
-- Proper Docusaurus frontmatter
-- Contributor recognition and praise
-- Technical insights and learnings
-- Community impact summary
-- Forward-looking content
-
-*Generated automatically every Saturday at 9 AM UTC*
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
-EOF
-        
-        # Commit the blog post
-        git commit -m "📰 Add weekly development blog post" \
-          -m "Week of $WEEK_START to $WEEK_END" \
-          -m "Title: $BLOG_TITLE" \
-          -m "Generated automatically from ecosystem activity analysis" \
-          -m "🤖 Generated with [Claude Code](https://claude.ai/code)" \
-          -m "Co-Authored-By: Claude <noreply@anthropic.com>"
-        
-        # Push branch and create PR
-        git push origin "$PR_BRANCH"
-        
-        gh pr create \
-          --title "📰 Weekly Blog: $BLOG_TITLE" \
-          --body-file pr_body.md \
-          --base main \
-          --head "$PR_BRANCH"
-        
-        echo "✅ Pull request created successfully"
-        
-        # Clean up
-        rm -f pr_body.md
+    - name: Cleanup
+      if: always()
+      run: |
+        rm -f prompt.txt payload.json final_payload.json blog_response.txt blog_content.md weekly_analysis.md pr_body.md
 
     - name: Output results
       run: |
         if [ "$BLOG_GENERATED" = "true" ]; then
-          echo "✅ Weekly blog post generated and PR created"
+          echo "✅ Weekly blog post generated"
           echo "📰 Title: $BLOG_TITLE"
-          echo "📅 Period: $WEEK_START to $WEEK_END"
-          echo "📊 Activity: $TOTAL_COMMITS commits, $TOTAL_PRS PRs"
         elif [ "$ACTIVITY_THRESHOLD" = "false" ]; then
-          echo "ℹ️ Low activity week - no blog post generated"
-          echo "💡 Use 'force_publish' to override if needed"
+          echo "ℹ️ Low activity week - no blog generated"
         else
           echo "❌ Blog generation failed"
         fi
