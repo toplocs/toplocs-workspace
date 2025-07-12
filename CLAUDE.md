@@ -198,6 +198,11 @@ This workspace approach enables:
 4. **Ecosystem coordination**: Single source of truth for project structure
 5. **Simplified onboarding**: Focus on building, not setup complexity
 
+## 🛠 Development Preferences
+
+- **Package Manager**: 
+  - In own projects, always use pnpm, not npm
+
 ---
 
 **Next Steps**: Use the auto-setup prompt to let Claude orchestrate your complete development environment! 🚀

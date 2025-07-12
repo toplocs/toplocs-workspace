@@ -48,7 +48,15 @@ const config: Config = {
           editUrl:
             'https://github.com/toplocs/toplocs-workspace/blob/main/docs/',
         },
-        blog: false,
+        blog: {
+          showReadingTime: true,
+          feedOptions: {
+            type: 'all',
+            copyright: `Copyright © ${new Date().getFullYear()} TopLocs`,
+          },
+          editUrl:
+            'https://github.com/toplocs/toplocs-workspace/blob/main/docusaurus/blog/',
+        },
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -98,6 +106,7 @@ const config: Config = {
           position: 'left',
           label: 'Core Platform',
         },
+        {to: '/blog', label: 'Blog', position: 'left'},
         {
           href: 'https://github.com/toplocs',
           label: 'GitHub',
@@ -137,6 +146,10 @@ const config: Config = {
         {
           title: 'More',
           items: [
+            {
+              label: 'Blog',
+              to: '/blog',
+            },
             {
               label: 'Ecosystem Overview',
               to: '/docs/project/ecosystem',
