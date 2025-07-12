@@ -144,15 +144,31 @@ jobs:
         echo '{"model":"claude-3-5-sonnet-20241022","max_tokens":4000,"messages":[{"role":"user","content":""}]}' > payload.json
         jq --arg content "$(cat prompt.txt)" '.messages[0].content = $content' payload.json > final_payload.json
         
+        # Debug: Check if API key is set
+        if [ -z "$ANTHROPIC_API_KEY" ]; then
+          echo "❌ ANTHROPIC_API_KEY is not set"
+          echo "BLOG_GENERATED=false" >> $GITHUB_ENV
+          exit 0
+        fi
+        
+        # Debug: Show payload size
+        echo "📦 Payload size: $(wc -c < final_payload.json) bytes"
+        
         response=$(curl -s -X POST "https://api.anthropic.com/v1/messages" \
           -H "Content-Type: application/json" \
           -H "x-api-version: 2023-06-01" \
           -H "Authorization: Bearer $ANTHROPIC_API_KEY" \
           -d @final_payload.json)
         
+        # Debug: Show response
+        echo "🔍 API Response status: $(echo "$response" | jq -r 'if .error then "ERROR: " + .error.message else "OK" end' 2>/dev/null || echo "PARSE_ERROR")"
+        
         claude_content=$(echo "$response" | jq -r '.content[0].text' 2>/dev/null || echo "")
         
-        if [ -n "$claude_content" ] && [ "$claude_content" != "null" ]; then
+        # Debug: Show content extraction result
+        echo "📝 Content extracted: $(echo "$claude_content" | wc -c) characters"
+        
+        if [ -n "$claude_content" ] && [ "$claude_content" != "null" ] && [ "$claude_content" != "" ]; then
           echo "✅ Blog post generated"
           echo "$claude_content" > blog_response.txt
           
