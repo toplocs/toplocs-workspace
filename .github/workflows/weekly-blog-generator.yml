@@ -156,8 +156,8 @@ jobs:
         
         response=$(curl -s -X POST "https://api.anthropic.com/v1/messages" \
           -H "Content-Type: application/json" \
-          -H "x-api-version: 2023-06-01" \
-          -H "Authorization: Bearer $ANTHROPIC_API_KEY" \
+          -H "anthropic-version: 2023-06-01" \
+          -H "x-api-key: $ANTHROPIC_API_KEY" \
           -d @final_payload.json)
         
         # Debug: Show response
