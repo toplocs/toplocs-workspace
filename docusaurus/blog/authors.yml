@@ -1,0 +1,29 @@
+felix:
+  name: Felix Böhm
+  title: Lead Developer
+  url: https://github.com/felixboehm
+  image_url: https://github.com/felixboehm.png
+
+felixboehm:
+  name: Felix Böhm
+  title: Lead Developer
+  url: https://github.com/felixboehm
+  image_url: https://github.com/felixboehm.png
+
+addiinnocent:
+  name: Addi Innocent
+  title: Core Developer
+  url: https://github.com/addiinnocent
+  image_url: https://github.com/addiinnocent.png
+
+michaelstingl:
+  name: Michael Stingl
+  title: Developer
+  url: https://github.com/michaelstingl
+  image_url: https://github.com/michaelstingl.png
+
+toplocs-team:
+  name: TopLocs Team
+  title: Development Team
+  url: https://github.com/toplocs
+  image_url: https://github.com/toplocs.png

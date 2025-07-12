@@ -310,12 +310,11 @@ EOF
         BLOG_FILE="docusaurus/blog/${BLOG_DATE}-${BLOG_SLUG}.md"
         
         # Extract contributors for authors field
-        contributors_array=""
-        if [ -n "$CONTRIBUTORS" ]; then
+        if [ -n "$CONTRIBUTORS" ] && [ "$CONTRIBUTORS" != "" ]; then
           # Convert comma-separated list to YAML array format
-          contributors_array=$(echo "$CONTRIBUTORS" | sed 's/, */, /g' | sed 's/^/[/' | sed 's/$/]/')
+          authors_yaml=$(echo "$CONTRIBUTORS" | sed 's/, */\n  - /g' | sed '1s/^/  - /')
         else
-          contributors_array="[toplocs-team]"
+          authors_yaml="  - toplocs-team"
         fi
         
         # Create frontmatter and blog post
@@ -323,7 +322,8 @@ EOF
 ---
 slug: ${BLOG_SLUG}
 title: ${BLOG_TITLE}
-authors: ${contributors_array}
+authors:
+${authors_yaml}
 tags: [weekly-update, development, ecosystem, p2p, gun-js]
 date: ${BLOG_DATE}T09:00
 ---

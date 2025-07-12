@@ -1,7 +1,10 @@
 ---
 slug: infrastructure-revolution-plugin-renaissance
 title: TopLocs Development Weekly - Infrastructure Revolution & Plugin Renaissance
-authors: [felix, addiinnocent, michaelstingl]
+authors:
+  - felix
+  - addiinnocent
+  - michaelstingl
 tags: [weekly-update, infrastructure, plugins, gun-js, documentation]
 date: 2025-07-12T10:00
 ---
