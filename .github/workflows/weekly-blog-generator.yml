@@ -248,21 +248,30 @@ jobs:
         Focus on celebrating achievements, technical progress, and community contributions. Make it informative and inspiring!
         EOF
         
+        # Prepare API request payload
+        # Escape the blog prompt content for JSON
+        escaped_content=$(cat blog_prompt.txt | jq -Rs .)
+        
+        # Create JSON payload
+        cat > api_payload.json << EOF
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 4000,
+  "messages": [
+    {
+      "role": "user",
+      "content": $escaped_content
+    }
+  ]
+}
+EOF
+        
         # Call Claude API
         response=$(curl -s -X POST "https://api.anthropic.com/v1/messages" \
           -H "Content-Type: application/json" \
           -H "x-api-version: 2023-06-01" \
           -H "Authorization: Bearer $ANTHROPIC_API_KEY" \
-          -d '{
-            "model": "claude-3-5-sonnet-20241022",
-            "max_tokens": 4000,
-            "messages": [
-              {
-                "role": "user",
-                "content": "'$(cat blog_prompt.txt | sed 's/"/\\"/g' | tr '\n' ' ')'"
-              }
-            ]
-          }')
+          -d @api_payload.json)
         
         echo "$response" > claude_response.json
         
@@ -331,7 +340,7 @@ EOF
       if: always()
       run: |
         # Remove temporary files
-        rm -f blog_prompt.txt claude_response.json raw_blog_content.txt blog_content.md weekly_analysis.md
+        rm -f blog_prompt.txt claude_response.json raw_blog_content.txt blog_content.md weekly_analysis.md api_payload.json
 
     - name: Check for changes and create PR
       if: env.BLOG_GENERATED == 'true'
