@@ -163,10 +163,22 @@ jobs:
         # Debug: Show response
         echo "🔍 API Response status: $(echo "$response" | jq -r 'if .error then "ERROR: " + .error.message else "OK" end' 2>/dev/null || echo "PARSE_ERROR")"
         
+        # Debug: Show full response structure (first 500 chars)
+        echo "📋 Full response preview:"
+        echo "$response" | head -c 500
+        echo ""
+        
         claude_content=$(echo "$response" | jq -r '.content[0].text' 2>/dev/null || echo "")
         
         # Debug: Show content extraction result
         echo "📝 Content extracted: $(echo "$claude_content" | wc -c) characters"
+        
+        # Debug: Show first 200 chars of extracted content
+        if [ -n "$claude_content" ] && [ "$claude_content" != "null" ]; then
+          echo "📖 Content preview:"
+          echo "$claude_content" | head -c 200
+          echo "..."
+        fi
         
         if [ -n "$claude_content" ] && [ "$claude_content" != "null" ] && [ "$claude_content" != "" ]; then
           echo "✅ Blog post generated"
