@@ -107,10 +107,10 @@ jobs:
         echo "TOTAL_PRS=$total_prs" >> $GITHUB_ENV
         echo "CONTRIBUTORS=$contributors" >> $GITHUB_ENV
         
-        echo "## Summary" >> weekly_analysis.md
-        echo "- Total Commits: $total_commits" >> weekly_analysis.md
-        echo "- Total PRs: $total_prs" >> weekly_analysis.md
-        echo "- Contributors: $contributors" >> weekly_analysis.md
+        echo "## Weekly Overview" >> weekly_analysis.md
+        echo "Active development occurred across multiple repositories with contributions from: $contributors" >> weekly_analysis.md
+        echo "" >> weekly_analysis.md
+        echo "Focus areas included core platform development, plugin ecosystem improvements, documentation updates, and infrastructure enhancements." >> weekly_analysis.md
         
         if [ "$total_commits" -gt 5 ] || [ "$total_prs" -gt 2 ] || [ "${{ inputs.force_publish }}" = "true" ]; then
           echo "ACTIVITY_THRESHOLD=true" >> $GITHUB_ENV
@@ -131,12 +131,30 @@ jobs:
         BLOG_SLUG="weekly-update-$(date -u +%Y-%m-%d)"
         
         # Create prompt for Claude
-        echo "You are writing a TopLocs weekly development blog post. Based on the activity below, write a comprehensive 800-1200 word blog post celebrating achievements and technical progress." > prompt.txt
-        echo "" >> prompt.txt
-        echo "Return in this format:" >> prompt.txt
-        echo "BLOG_TITLE: [compelling title]" >> prompt.txt
-        echo "BLOG_CONTENT:" >> prompt.txt
-        echo "[markdown content for Docusaurus blog]" >> prompt.txt
+        cat > prompt.txt << 'EOF'
+You are writing a TopLocs weekly development blog post. Based on the activity below, write a comprehensive 800-1200 word blog post celebrating achievements and technical progress.
+
+IMPORTANT REQUIREMENTS:
+- DO NOT include any statistics sections or numerical data summaries
+- DO include these specific sections: Documentation Updates, Infrastructure & DevOps, Technical Learnings
+- Focus on qualitative achievements and insights rather than quantitative metrics
+- Write engaging, technical content that highlights real progress and learnings
+
+Required sections to include:
+1. Major Feature Releases/Updates
+2. Plugin Ecosystem Updates  
+3. Documentation Updates (new guides, improved docs, etc.)
+4. Infrastructure & DevOps (CI/CD improvements, deployment enhancements, etc.)
+5. Technical Learnings (architectural insights, performance discoveries, security improvements)
+6. Looking Forward
+7. Community Impact/Get Involved
+
+Return ONLY in this exact format:
+BLOG_TITLE: [compelling title]
+BLOG_CONTENT:
+[clean markdown content for Docusaurus blog - no code blocks or extra formatting]
+
+EOF
         echo "" >> prompt.txt
         cat weekly_analysis.md >> prompt.txt
         
