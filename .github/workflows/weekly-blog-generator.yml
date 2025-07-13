@@ -144,15 +144,12 @@ jobs:
         echo '{"model":"claude-3-5-sonnet-20241022","max_tokens":4000,"messages":[{"role":"user","content":""}]}' > payload.json
         jq --arg content "$(cat prompt.txt)" '.messages[0].content = $content' payload.json > final_payload.json
         
-        # Debug: Check if API key is set
+        # Check if API key is set
         if [ -z "$ANTHROPIC_API_KEY" ]; then
           echo "❌ ANTHROPIC_API_KEY is not set"
           echo "BLOG_GENERATED=false" >> $GITHUB_ENV
           exit 0
         fi
-        
-        # Debug: Show payload size
-        echo "📦 Payload size: $(wc -c < final_payload.json) bytes"
         
         response=$(curl -s -X POST "https://api.anthropic.com/v1/messages" \
           -H "Content-Type: application/json" \
@@ -160,25 +157,11 @@ jobs:
           -H "x-api-key: $ANTHROPIC_API_KEY" \
           -d @final_payload.json)
         
-        # Debug: Show response
-        echo "🔍 API Response status: $(echo "$response" | jq -r 'if .error then "ERROR: " + .error.message else "OK" end' 2>/dev/null || echo "PARSE_ERROR")"
-        
-        # Debug: Show full response structure (first 500 chars)
-        echo "📋 Full response preview:"
-        echo "$response" | head -c 500
-        echo ""
+        # Check response status
+        response_status=$(echo "$response" | jq -r 'if .error then "ERROR: " + .error.message else "OK" end' 2>/dev/null || echo "PARSE_ERROR")
+        echo "🔍 API Response: $response_status"
         
         claude_content=$(echo "$response" | jq -r '.content[0].text' 2>/dev/null || echo "")
-        
-        # Debug: Show content extraction result
-        echo "📝 Content extracted: $(echo "$claude_content" | wc -c) characters"
-        
-        # Debug: Show first 200 chars of extracted content
-        if [ -n "$claude_content" ] && [ "$claude_content" != "null" ]; then
-          echo "📖 Content preview:"
-          echo "$claude_content" | head -c 200
-          echo "..."
-        fi
         
         if [ -n "$claude_content" ] && [ "$claude_content" != "null" ] && [ "$claude_content" != "" ]; then
           echo "✅ Blog post generated"
