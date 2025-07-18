@@ -4,6 +4,24 @@
 
 TopLocs uses a plugin-based architecture that allows developers to extend the platform's functionality without modifying the core codebase. Plugins are loaded dynamically using Module Federation and integrate seamlessly with the Gun.js data layer.
 
+### Plugin Philosophy
+
+**"Enable people to organize their communities simpler than ever."**
+
+Plugins are designed to:
+- **Enable Community Interactions**: Allow people to share activities and organize communities
+- **Support Diverse Activities**: From simple communication to complex governance systems
+- **Integrate Seamlessly**: Work with existing interests and locations
+- **Preserve P2P Principles**: Maintain decentralized, user-owned data
+
+### Community-Centric Design
+
+Plugins should focus on:
+- **Community Building**: Create tools that help people connect and collaborate
+- **Local + Global**: Support both local communities (interest + location) and global communities (interest-only)
+- **Real-Life Integration**: Bridge digital interactions with physical activities
+- **User Empowerment**: Give users control over their data and community interactions
+
 ## Plugin Architecture
 
 ### Module Federation System
@@ -425,7 +443,99 @@ gun.get('plugins').get('my-plugin').put({
 - Use Gun.js SEA for sensitive data
 - Implement proper authentication checks
 
-## Example Plugins
+## Core Plugin Categories
+
+### Communication Plugins
+**Enable simple and complex communication patterns**
+
+**Chat/Threads**: Allow communities to communicate
+- **1:1 Communication**: Direct messaging between users
+- **Community Chat**: Group discussions within interest-based communities
+- **Local Community Chat**: Location-specific community discussions
+- **Integration**: Consider Matrix chat protocol for federated messaging
+
+**Discussion Forums**: Structured conversations and decision-making
+- **Threaded Discussions**: Organize complex conversations
+- **Decision Support**: Help communities make collective decisions
+- **Governance Integration**: Connect discussions to voting and consensus processes
+
+### Knowledge Sharing Plugins
+**Enable collaborative knowledge creation and sharing**
+
+**Wiki Systems**: Share knowledge with interest and location context
+- **Interest-Specific Wikis**: "How-to" guides for specific topics
+- **Location-Specific Wikis**: "Recommended car sharing in Ponto do sol"
+- **Integration**: Consider XWiki for advanced wiki functionality
+- **Collaborative Editing**: Real-time collaborative document editing
+
+**Learning Platforms**: Educational content and skill sharing
+- **Skill Exchange**: Connect learners with experts
+- **Tutorial Creation**: Community-generated learning content
+- **Progress Tracking**: Track learning journeys and achievements
+
+### Activity Coordination Plugins
+**Bridge digital and physical community activities**
+
+**Event Management**: Organize real-world activities
+- **Event Creation**: "Beach cleaning", "Dog sitting", "Tree planting"
+- **RSVP Systems**: Manage event attendance and capacity
+- **Integration**: Meetup.com-like functionality for communities
+- **Activity Coordination**: Organize group activities and gatherings
+
+**Project Collaboration**: Coordinate community projects
+- **Project Management**: "Nomad village", "Community garden", "Local initiatives"
+- **Task Distribution**: Assign and track project tasks
+- **Resource Sharing**: Coordinate tools, space, and materials
+
+### Content Sharing Plugins
+**Enable rich media and content sharing**
+
+**Media Sharing**: Photos, videos, and files
+- **Activity Documentation**: Share photos from group activities
+- **Community Archives**: Build collective memory through shared media
+- **File Sharing**: Share documents and resources within communities
+
+**Social Features**: Posts, feeds, and social interactions
+- **Community Feeds**: Aggregate community updates and activities
+- **Social Posts**: Text, photo, and video sharing
+- **Interaction**: Like, comment, and share functionality
+
+### Governance Plugins
+**Enable democratic community management**
+
+**Decision Making**: Community governance tools
+- **Discussion Facilitation**: Structure community debates and discussions
+- **Voting Systems**: Implement various voting mechanisms
+- **Consensus Building**: Tools for reaching community agreements
+
+**Trust and Reputation**: Community trust networks
+- **Reputation Systems**: Track community contributions and trust
+- **Delegation**: Liquid democracy and trust delegation
+- **Transparency**: Make governance processes visible and accountable
+
+### Marketplace Plugins
+**Economic interactions within communities**
+
+**Community Marketplace**: Local economic exchange
+- **Goods Exchange**: Buy, sell, and trade within communities
+- **Service Marketplace**: Offer and request services
+- **Resource Sharing**: Community tool libraries and resource sharing
+
+**Mutual Aid**: Support and assistance networks
+- **Skill Sharing**: Offer and request help with specific skills
+- **Resource Exchange**: Share tools, space, and materials
+- **Community Support**: Organize mutual aid and support networks
+
+### Integration Plugins
+**Connect with existing platforms and services**
+
+**Existing Project Integrations**: Leverage existing tools
+- **Solid Project**: Integrate with the Solid ecosystem
+- **Matrix**: Federated messaging integration
+- **Mastodon**: Decentralized social media connection
+- **Open Hospitality Network**: Travel and accommodation sharing
+
+## Example Plugin Implementations
 
 ### Chat Plugin
 ```vue

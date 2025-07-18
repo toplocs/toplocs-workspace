@@ -66,17 +66,38 @@ cd toplocs && claude
 
 TopLocs is a **decentralized P2P community platform** built on Gun.js:
 
+> **"A home for Communities"**
+> 
+> **"Find likeminded people and interact based on interests and locations"**
+
+### Core Vision
+TopLocs addresses fundamental human needs for connection and community:
+- **Travel**: "While traveling I want to find communities in any new location and connect easily"
+- **Local Discovery**: "I want to find friends and activities around me based on my interests"
+- **Community Building**: "I want to build a sustainable community"
+
 ### Core Technologies
 - **P2P Database**: Gun.js for real-time data sync
 - **Frontend**: Vue.js 3 + TypeScript
-- **Authentication**: WebAuthn/Passkeys + Gun SEA
+- **Authentication**: WebAuthn/Passkeys + Gun SEA (multi-layer auth strategy)
 - **Plugins**: Module Federation for dynamic loading
 - **Mobile**: Ionic + Capacitor
+
+### Key Concepts
+- **Multiple Profiles**: Users can create profiles for different contexts ("Sports", "Work", "Family", "Private")
+- **Interest-Location Matrix**: Local communities around interests + global interest-based communities
+- **Community Governance**: Liquid democracy, trust networks, and transparent contribution-based ownership
+- **Plugin Architecture**: "Enable people to organize their communities simpler than ever"
 
 ### Repository Categories
 - **🏛️ Core**: tribelike (main platform), locations (mobile)
 - **🔌 Plugins**: All `*-plugin` repositories
 - **🛠️ Tools**: plugin-dev-sdk (development SDK), demo-plugin (template)
+
+### Data Architecture
+- **Universal Relations System**: Connects all entities through typed relationships
+- **Multi-Layer Authentication**: Guest → Email → WebAuthn → Gun.js P2P identity
+- **Decentralized Governance**: Trust networks enable community self-governance
 
 ## 📚 Documentation Strategy
 
@@ -113,6 +134,12 @@ pnpm dev
 **📖 Tribelike-Specific Resources:**
 - **[Tribelike Development Guide](./tribelike/docs/DEVELOPMENT.md)** - Technical details, data architecture, Gun.js patterns, and development workflows
 - **[Tribelike README](./tribelike/README.md)** - Repository overview and quick setup
+
+### Enhanced Documentation Resources
+- **[🔐 Authentication Strategy](./docs/development/authentication-strategy.md)** - Multi-layer auth from guest to P2P identity
+- **[🔗 Data Relationships](./docs/project/data-relationships.md)** - Universal relations system and entity connections
+- **[🏛️ Community Governance](./use-cases/2-community-governance.md)** - Liquid democracy and trust networks
+- **[🔌 Plugin Categories](./docs/development/plugin-development.md)** - Community-focused plugin design patterns
 
 ### Scenario 2: Plugin Development
 ```bash
@@ -159,6 +186,21 @@ cd [your-plugin] # Work on specific plugin
 - **Update relevant docs/** files to keep documentation current
 - **Create pull requests** for all changes (never push directly to main)
 - **Commit with descriptive messages** explaining what changed and why
+
+## 📋 Use Cases & User Scenarios
+
+The platform addresses diverse community needs through structured use cases:
+
+### Core Use Cases
+- **[🏠 TopLocs Platform](./use-cases/1-toplocs.md)** - Travel, local discovery, community building with multiple profiles
+- **[🏛️ Community Governance](./use-cases/2-community-governance.md)** - Liquid democracy, trust networks, transparent ownership
+- **[🤝 Meetup Alternative](./use-cases/3-meetup.md)** - Local event organization and community building
+- **[🎓 Skool Alternative](./use-cases/4-skool.md)** - Online learning communities and course management
+
+### User Journey Patterns
+- **Progressive Identity**: Guest → Email → WebAuthn → P2P identity
+- **Community Evolution**: Individual interest → Local community → Global network
+- **Governance Maturation**: Informal → Structured → Democratic governance
 
 ## 🚀 Getting Started Commands
 
