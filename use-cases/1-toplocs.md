@@ -20,16 +20,16 @@ TopLocs is a decentralized platform that connects people through **Topic- and Lo
 ## Use Case: My Local Communities (Home, Commuting)
 
 As a User, when I spend time at my main locations, ...
-- **Discover**: I want to discover new interests to explore for me, ideally following a friend who is experienced already, then connect and learn upon them.
-- **Bond**: I want to meet likeminded people around me based on my interests.
-- **Live**: I want to find activities / events around me based on my interests.
+- **Discover**: I want to discover new topics to explore for me, ideally following a friend who is experienced already, then connect and learn upon them.
+- **Bond**: I want to meet likeminded people around me based on my topics.
+- **Live**: I want to find activities / events around me based on my topics.
 
 
 ## Use Case: Traveling
 
 As a User ...
-- **Plan**: Before traveling I want to find informations about activities based on my interests in the locations I will go next.
-- **Explore**: While traveling I want to find activities and communities based on my interest.
+- **Plan**: Before traveling I want to find informations about activities based on my topics in the locations I will go next.
+- **Explore**: While traveling I want to find activities and communities based on my topics.
 - **Discover**: While driving I want to discover a close-by place offering a spontaneuos activity. 
 - **Run into**: Run into a friend who is at the same place by coincidence.
 - **Bond**: After traveling I want to stay connected with people I met or traveled with.
