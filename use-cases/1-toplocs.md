@@ -2,7 +2,7 @@
 
 **A home for Communities enabling meaningful connections.**
 
-> "Find likeminded people and interact based on interests and locations"
+> "Find likeminded people and interact based on topics and locations"
 
 TopLocs is a decentralized platform that connects people through **Topic- and Location-Based Communities**:
 - Don't follow people, follow topics that matter to you.
