@@ -1,6 +1,6 @@
 # TopLocs
 
-**A home for Communities.**
+**A home for Communities enabling meaningful connections.**
 
 > "Find likeminded people and interact based on interests and locations"
 
