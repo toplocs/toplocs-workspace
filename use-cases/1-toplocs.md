@@ -17,6 +17,26 @@ TopLocs is a decentralized platform that connects people through **Topic- and Lo
 
 > "I want to build a sustainable community"
 
+## Use Case: My Local Communities (Home, Commuting)
+
+As a User, when I spend time at my main locations, ...
+- **Discover**: I want to discover new interests to explore for me, ideally following a friend who is experienced already, then connect and learn upon them.
+- **Bond**: I want to meet likeminded people around me based on my interests.
+- **Live**: I want to find activities / events around me based on my interests.
+
+
+## Use Case: Traveling
+
+As a User ...
+- **Plan**: Before traveling I want to find informations about activities based on my interests in the locations I will go next.
+- **Explore**: While traveling I want to find activities and communities based on my interest.
+- **Discover**: While driving I want to discover a close-by place offering a spontaneuos activity. 
+- **Run into**: Run into a friend who is at the same place by coincidence.
+- **Bond**: After traveling I want to stay connected with people I met or traveled with.
+
+
+# Clarifications
+
 ## Multiple Profiles & Identity
 
 You can create multiple profiles to compartmentalize different aspects of your life:
@@ -34,26 +54,6 @@ TopLocs creates **local communities around various interests** while enabling **
 When you add multiple "locations of interest" to your profile, you participate in:
 - **Local Community**: People sharing your interests in your specific location
 - **Global Community**: People sharing your interests worldwide
-
-## My Local Communities (Home, Commuting)
-
-As a User, when I spend time at my main locations, ...
-- **Discover**: I want to discover new interests to explore for me, ideally following a friend who is experienced already, then connect and learn upon them.
-- **Bond**: I want to meet likeminded people around me based on my interests.
-- **Live**: I want to find activities / events around me based on my interests.
-
-
-## Traveling
-
-As a User ...
-- **Plan**: Before traveling I want to find informations about activities based on my interests in the locations I will go next.
-- **Explore**: While traveling I want to find activities and communities based on my interest.
-- **Discover**: While driving I want to discover a close-by place offering a spontaneuos activity. 
-- **Run into**: Run into a friend who is at the same place by coincidence.
-- **Bond**: After traveling I want to stay connected with people I met or traveled with.
-
-
-# Clarifications
 
 ## Activities - Topic or Interaction
 
