@@ -17,7 +17,9 @@ Welcome to the TopLocs ecosystem documentation. This documentation is organized 
 **For technical implementation and active development**
 
 - **Plugin Development** - Creating plugins with Module Federation
+- **Plugin SDK v1.1.0** - Latest SDK documentation and API reference
 - **GunDB Developer Guide** - Data modeling and database patterns
+- **Authentication Strategy** - Multi-layer authentication implementation
 - **Debug Guide** - Debugging techniques and console commands
 - **Debug Tools** - Implementation guides for monitoring tools
 
@@ -31,9 +33,11 @@ Welcome to the TopLocs ecosystem documentation. This documentation is organized 
 
 ### I Want to Build Something
 → **Go to [Development Documentation](./development/)**
-1. [Plugin Development](./development/plugin-development.md) - Build plugins
-2. [GunDB Guide](./development/gundb-guide.md) - Work with the database
-3. [Debug Guide](./development/debug-guide.md) - Debug issues
+1. [Plugin SDK v1.1.0](./development/plugin-sdk-v1.1.0.md) - Start with the SDK
+2. [Plugin Development](./development/plugin-development.md) - Build plugins
+3. [Plugin Registry](./project/plugin-registry.md) - See existing plugins
+4. [GunDB Guide](./development/gundb-guide.md) - Work with the database
+5. [Debug Guide](./development/debug-guide.md) - Debug issues
 
 ### I Want to Understand the Workspace
 → **Check [Project Documentation](./project/)**
@@ -82,12 +86,30 @@ docs/
     └── debug-tools.md        # Debug tools implementation
 ```
 
+## 📦 Latest Updates (July 2025)
+
+### Plugin SDK v1.1.0 Released
+- Standardized PluginInfoPage component for all plugins
+- Enhanced TypeScript support with better type exports
+- Built-in GitHub Pages deployment configuration
+- Improved development environment with hot reload
+
+### Plugin Status Updates
+- **link-plugin**: Fully migrated to SDK 1.1.0 with info page
+- **event-plugin**: Updated to SDK 1.1.0, chat functionality working
+- **wiki-plugin**: TypeScript fixes in progress, temporary build workaround
+- **All plugins**: Now deploy to GitHub Pages automatically
+
 ## 🔗 External Resources
 
 - **Live Documentation**: https://toplocs.github.io/toplocs-workspace/
 - **Main Repository**: https://github.com/toplocs/tribelike
-- **Plugin SDK**: https://github.com/toplocs/plugin-dev-sdk
+- **Plugin SDK v1.1.0**: https://github.com/toplocs/plugin-sdk
 - **Demo Plugin**: https://github.com/toplocs/demo-plugin
+- **Plugin Examples**:
+  - [Link Plugin](https://github.com/toplocs/link-plugin) - Best SDK example
+  - [Event Plugin](https://github.com/toplocs/event-plugin) - Chat & events
+  - [Wiki Plugin](https://github.com/toplocs/wiki-plugin) - Rich text editing
 
 ---
 
