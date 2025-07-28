@@ -73,17 +73,23 @@ TopLocs uses an **Entity/Page/Slot** architecture:
 
 ### 1. Use the Plugin Development SDK (Recommended)
 
-The TopLocs Plugin Development SDK provides a comprehensive development environment:
+The TopLocs Plugin Development SDK v1.1.0 provides a comprehensive development environment with standardized components:
 
 ```bash
 # Install the SDK
-npm install git+https://github.com/toplocs/plugin-dev-sdk.git
+npm install git+https://github.com/toplocs/plugin-sdk.git
 
 # Or create a new plugin from scratch
 mkdir my-new-plugin && cd my-new-plugin
 npm init -y
-npm install git+https://github.com/toplocs/plugin-dev-sdk.git
+npm install git+https://github.com/toplocs/plugin-sdk.git
 ```
+
+**New in v1.1.0:**
+- Standardized PluginInfoPage component for consistent plugin information display
+- Enhanced TypeScript support with better type exports
+- Built-in GitHub Pages deployment support
+- Improved asset handling for production builds
 
 ### 2. Alternative: Use the Demo Plugin Template
 
@@ -120,7 +126,7 @@ my-plugin/
 
 #### Plugin Configuration File (src/index.ts)
 ```typescript
-import type { BasePluginConfig } from '@toplocs/plugin-dev-sdk';
+import type { BasePluginConfig } from '@toplocs/plugin-sdk';
 
 const pluginConfig: BasePluginConfig = {
   id: 'my_plugin',
@@ -142,8 +148,8 @@ export default pluginConfig;
 
 #### Development Entry Point (index.ts)
 ```typescript
-import { createPluginDevelopmentEnvironment, type PluginDevConfig } from '@toplocs/plugin-dev-sdk';
-import '@toplocs/plugin-dev-sdk/style.css';
+import { createPluginDevelopmentEnvironment, type PluginDevConfig } from '@toplocs/plugin-sdk';
+import '@toplocs/plugin-sdk/style.css';
 
 // Import plugin configuration and components
 import pluginConfig from './src/index';
@@ -160,7 +166,7 @@ const devConfig: PluginDevConfig = {
 };
 
 const app = createPluginDevelopmentEnvironment(devConfig);
-app.mount('#app');
+app.mount('#plugin-dev');
 ```
 
 ### 5. Core Components

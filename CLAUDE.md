@@ -38,7 +38,7 @@ toplocs/ (this workspace repository)
 ├── location-plugin/    # Location plugin
 ├── link-plugin/        # Link sharing plugin
 ├── demo-plugin/        # Plugin development template
-├── plugin-dev-sdk/     # 🚀 Plugin Development SDK
+├── plugin-sdk/         # 🚀 Plugin Development SDK v1.1.0
 └── tribelike.wiki/     # Project wiki
 ```
 
@@ -91,8 +91,8 @@ TopLocs addresses fundamental human needs for connection and community:
 
 ### Repository Categories
 - **🏛️ Core**: tribelike (main platform), locations (mobile)
-- **🔌 Plugins**: All `*-plugin` repositories
-- **🛠️ Tools**: plugin-dev-sdk (development SDK), demo-plugin (template)
+- **🔌 Plugins**: All `*-plugin` repositories (link, event, wiki, location)
+- **🛠️ Tools**: plugin-sdk (SDK v1.1.0), demo-plugin (template)
 
 ### Data Architecture
 - **Universal Relations System**: Connects all entities through typed relationships
@@ -139,18 +139,33 @@ pnpm dev
 - **[🔐 Authentication Strategy](./docs/development/authentication-strategy.md)** - Multi-layer auth from guest to P2P identity
 - **[🔗 Data Relationships](./docs/project/data-relationships.md)** - Universal relations system and entity connections
 - **[🏛️ Community Governance](./use-cases/2-community-governance.md)** - Liquid democracy and trust networks
-- **[🔌 Plugin Categories](./docs/development/plugin-development.md)** - Community-focused plugin design patterns
+- **[🔌 Plugin Development](./docs/development/plugin-development.md)** - Complete plugin development guide
+- **[📦 Plugin SDK v1.1.0](./docs/development/plugin-sdk-v1.1.0.md)** - Latest SDK documentation
+- **[📚 Plugin Registry](./docs/project/plugin-registry.md)** - Current status of all plugins
 
 ### Scenario 2: Plugin Development
 ```bash
-# Modern approach with Plugin Development SDK
-npm install git+https://github.com/toplocs/plugin-dev-sdk.git
+# Modern approach with Plugin SDK v1.1.0
+npm install git+https://github.com/toplocs/plugin-sdk.git
 # Set up your plugin with SDK
 
 # Alternative: Use demo-plugin as template
 cd demo-plugin  # Use as template
 cd [your-plugin] # Work on specific plugin
 ```
+
+**📦 Plugin SDK v1.1.0 Features:**
+- **Standardized Info Pages**: PluginInfoPage component for consistent plugin information
+- **Development Environment**: Interactive testing with hot reload
+- **TypeScript Support**: Full type definitions and interfaces
+- **GitHub Pages Ready**: Built-in deployment configuration
+- **Vite + Module Federation**: Optimized build setup
+
+**🔌 Current Plugin Status:**
+- **link-plugin**: ✅ SDK 1.1.0, deployed, fully functional
+- **event-plugin**: ✅ SDK 1.1.0, deployed, chat & events working
+- **wiki-plugin**: 🔧 SDK 1.1.0, deployment fixes in progress
+- **location-plugin**: 🚧 Under development, SDK integration pending
 
 ### Scenario 3: Cross-Ecosystem Features
 ```bash
@@ -244,6 +259,48 @@ This workspace approach enables:
 
 - **Package Manager**: 
   - In own projects, always use pnpm, not npm
+
+## 📝 Common Plugin Development Tasks
+
+### Creating a New Plugin with SDK v1.1.0
+```bash
+mkdir my-plugin && cd my-plugin
+pnpm init -y
+pnpm add git+https://github.com/toplocs/plugin-sdk.git
+# Follow the Plugin SDK documentation
+```
+
+### Updating Existing Plugin to SDK v1.1.0
+1. Update dependency: `pnpm add git+https://github.com/toplocs/plugin-sdk.git`
+2. Add info page using PluginInfoPage component
+3. Update imports from `@toplocs/plugin-dev-sdk` to `@toplocs/plugin-sdk`
+4. Test with `pnpm dev` and deploy with `pnpm build`
+
+### Plugin Deployment Checklist
+- [ ] Build succeeds with `pnpm build`
+- [ ] `dist/assets/plugin.js` is generated
+- [ ] GitHub Actions workflow is configured
+- [ ] GitHub Pages is enabled in repository settings
+- [ ] Plugin URL in config matches deployment URL
+
+## 🚀 Latest Updates (July 2025)
+
+### Plugin SDK v1.1.0 Released
+- Standardized PluginInfoPage component for all plugins
+- Enhanced TypeScript support with better type exports
+- Built-in GitHub Pages deployment configuration
+- Improved development environment with hot reload
+
+### Plugin Status Updates
+- **link-plugin**: Fully migrated to SDK 1.1.0 with info page
+- **event-plugin**: Updated to SDK 1.1.0, chat functionality working
+- **wiki-plugin**: TypeScript fixes in progress, temporary build workaround
+- **All plugins**: Now deploy to GitHub Pages automatically
+
+### Documentation Improvements
+- New Plugin SDK v1.1.0 guide added
+- Plugin Registry created to track all plugins
+- Enhanced plugin development guide with SDK examples
 
 ---
 
