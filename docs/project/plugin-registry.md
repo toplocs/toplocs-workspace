@@ -11,6 +11,7 @@ This document maintains the current status of all TopLocs plugins, their feature
 - **Status**: ✅ Active
 - **SDK Version**: 1.1.0
 - **Deployment**: https://toplocs.github.io/link-plugin/
+- **Entry Point**: https://toplocs.github.io/link-plugin/plugin.js
 - **Description**: Share and organize links within TopLocs communities
 - **Features**:
   - Link submission and sharing
@@ -23,6 +24,7 @@ This document maintains the current status of all TopLocs plugins, their feature
 - **Status**: ✅ Active
 - **SDK Version**: 1.1.0
 - **Deployment**: https://toplocs.github.io/event-plugin/
+- **Entry Point**: https://toplocs.github.io/event-plugin/plugin.js
 - **Description**: Chat, events, and community organization
 - **Features**:
   - Real-time chat
@@ -35,6 +37,7 @@ This document maintains the current status of all TopLocs plugins, their feature
 - **Status**: 🔧 In Development
 - **SDK Version**: 1.1.0
 - **Deployment**: https://toplocs.github.io/wiki-plugin/ (pending fixes)
+- **Entry Point**: https://toplocs.github.io/wiki-plugin/plugin.js
 - **Description**: Community wikis and knowledge sharing
 - **Features**:
   - Collaborative wiki pages
@@ -49,6 +52,8 @@ This document maintains the current status of all TopLocs plugins, their feature
 - **Repository**: https://github.com/toplocs/location-plugin
 - **Status**: 🚧 Under Development
 - **SDK Version**: Not yet updated
+- **Deployment**: Not yet deployed
+- **Entry Point**: https://toplocs.github.io/location-plugin/plugin.js (when deployed)
 - **Description**: Location-based features and mapping
 - **Features** (Planned):
   - Location mapping
